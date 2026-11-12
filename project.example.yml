@@ -1,0 +1,30 @@
+# project.yml — one per repository, at the root. Read by agents (AGENTS.md),
+# by the shared workflows and by the portfolio review.
+
+# Short uppercase key. Issue IDs, branch names and PR titles use it: FAC-104.
+# With tracker: linear it is the Linear team key.
+key: FAC
+
+# Language for issues, PRs and commits.
+language: es-AR
+# Optional: language for docs and UI copy, when it differs from `language`.
+# docs_language: en
+# Code identifiers and agent instructions stay in English (docs/agent/rules/workflow.md, Language).
+
+# Where issues live, each project with its own numbering. One of: github, linear.
+tracker: linear
+
+# active: normal work. paused: no new work unless the owner asks;
+# the portfolio review lists it but does not suggest next steps.
+status: active
+
+# Optional. Only if the repository's default branch should not be read from
+# the remote (it normally is: main or master both work).
+# default_branch: master
+
+# Commands every repository exposes under the same names (see Makefile).
+# They are listed here so agents do not have to guess.
+commands:
+  check: make check     # lint + format check + types + tests
+  fix: make fix         # format and autofix
+  test: make test
