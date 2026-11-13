@@ -8,22 +8,47 @@ STATEMENT_SUFFIX = "_statement"
 ANONYMOUS = "<anonymous>"
 
 
+class Common(StrEnum):
+    """Node types with the same name in more than one grammar."""
+
+    COMMENT = "comment"
+    STRING = "string"
+    ESCAPE = "escape_sequence"
+    CLASS_DECLARATION = "class_declaration"
+    VARIABLE_DECLARATOR = "variable_declarator"
+    BINARY = "binary_expression"
+
+
+class SyntaxField(StrEnum):
+    """tree-sitter field names, the same in every grammar."""
+
+    NAME = "name"
+    KEY = "key"
+    LEFT = "left"
+    RIGHT = "right"
+    VALUE = "value"
+    OPERATOR = "operator"
+
+
+class Keyword(StrEnum):
+    """Keywords shared by TypeScript and C#."""
+
+    CONST = "const"
+
+
 class Py(StrEnum):
     """tree-sitter-python."""
 
     FUNCTION = "function_definition"
     CLASS = "class_definition"
     COMPARISON = "comparison_operator"
-    STRING = "string"
     STRING_CONTENT = "string_content"
-    ESCAPE = "escape_sequence"
     INTERPOLATION = "interpolation"
     TUPLE = "tuple"
     LIST = "list"
     SET = "set"
     CASE_PATTERN = "case_pattern"
     UNION_PATTERN = "union_pattern"
-    COMMENT = "comment"
     IDENTIFIER = "identifier"
     ASSIGNMENT = "assignment"
     EXPRESSION_STATEMENT = "expression_statement"
@@ -47,22 +72,16 @@ class Ts(StrEnum):
     GENERATOR_EXPRESSION = "generator_function"
     ARROW = "arrow_function"
     METHOD = "method_definition"
-    CLASS = "class_declaration"
     CLASS_EXPRESSION = "class"
     ABSTRACT_CLASS = "abstract_class_declaration"
-    VARIABLE_DECLARATOR = "variable_declarator"
     PAIR = "pair"
     FIELD = "public_field_definition"
     ASSIGNMENT = "assignment_expression"
-    BINARY = "binary_expression"
     UNARY = "unary_expression"
-    STRING = "string"
     STRING_FRAGMENT = "string_fragment"
-    ESCAPE = "escape_sequence"
     TEMPLATE = "template_string"
     TEMPLATE_SUBSTITUTION = "template_substitution"
     SWITCH_CASE = "switch_case"
-    COMMENT = "comment"
     PREDEFINED_TYPE = "predefined_type"
     LEXICAL_DECLARATION = "lexical_declaration"
     EXPORT = "export_statement"
@@ -75,7 +94,6 @@ class Ts(StrEnum):
 class TsToken(StrEnum):
     """Tokens of TypeScript and JavaScript."""
 
-    CONST = "const"
     TYPEOF = "typeof"
     ANY = "any"
 
@@ -90,15 +108,12 @@ class Cs(StrEnum):
     CONVERSION = "conversion_operator_declaration"
     LOCAL_FUNCTION = "local_function_statement"
     ACCESSOR = "accessor_declaration"
-    CLASS = "class_declaration"
     STRUCT = "struct_declaration"
     RECORD = "record_declaration"
     INTERFACE = "interface_declaration"
     PROPERTY = "property_declaration"
-    BINARY = "binary_expression"
     STRING = "string_literal"
     STRING_CONTENT = "string_literal_content"
-    ESCAPE = "escape_sequence"
     VERBATIM = "verbatim_string_literal"
     RAW = "raw_string_literal"
     RAW_CONTENT = "raw_string_content"
@@ -106,19 +121,16 @@ class Cs(StrEnum):
     FIELD = "field_declaration"
     MODIFIER = "modifier"
     VARIABLE_DECLARATION = "variable_declaration"
-    VARIABLE_DECLARATOR = "variable_declarator"
     PRAGMA = "preproc_pragma"
     ATTRIBUTE = "attribute"
-    COMMENT = "comment"
 
 
 class CsToken(StrEnum):
     """Tokens of C#."""
 
-    CONST = "const"
     STATIC = "static"
     READONLY = "readonly"
-    WARNING = "warning"
+    WARNING = "warning"  # same-value: a C# pragma token, not an annotation level
     DISABLE = "disable"
     SUPPRESS_MESSAGE = "SuppressMessage"
     SUPPRESS_MESSAGE_ATTRIBUTE = "SuppressMessageAttribute"

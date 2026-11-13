@@ -23,7 +23,7 @@ from standards.constants import (
     TEST_PATH_PARTS,
     Language,
 )
-from standards.node_types import Cs, Py, Ts
+from standards.node_types import Common, Cs, Py, Ts
 
 _GRAMMARS = {
     Language.PYTHON: tree_sitter_python.language,
@@ -33,18 +33,18 @@ _GRAMMARS = {
     Language.CSHARP: tree_sitter_c_sharp.language,
 }
 
-COMMENT_TYPES = frozenset({Py.COMMENT, Ts.COMMENT, Cs.COMMENT})
+COMMENT_TYPES = frozenset({Common.COMMENT})
 _INTERPOLATIONS = frozenset({Py.INTERPOLATION, Ts.TEMPLATE_SUBSTITUTION})
 _STRING_PARTS = frozenset(
     {
         Py.STRING_CONTENT,
-        Py.ESCAPE,
+        Common.ESCAPE,
         Ts.STRING_FRAGMENT,
         Cs.STRING_CONTENT,
         Cs.RAW_CONTENT,
     }
 )
-STRING_TYPES = frozenset({Py.STRING, Ts.TEMPLATE, Cs.STRING, Cs.VERBATIM, Cs.RAW})
+STRING_TYPES = frozenset({Common.STRING, Ts.TEMPLATE, Cs.STRING, Cs.VERBATIM, Cs.RAW})
 _VERBATIM_PREFIX = '@"'
 _QUOTE = '"'
 

@@ -10,11 +10,8 @@ from enum import StrEnum
 from tree_sitter import Node
 
 from standards.constants import Language
-from standards.node_types import Cs, CsToken, Py, Ts, TsToken
+from standards.node_types import Cs, CsToken, Py, SyntaxField, Ts, TsToken
 from standards.syntax import COMMENT_TYPES, field_text, parse, text, walk
-
-_NAME = "name"
-_ANY = "Any"
 
 
 class Suppression(StrEnum):
@@ -24,7 +21,7 @@ class Suppression(StrEnum):
     PY_TYPE_IGNORE = "# type: ignore"
     PY_NOQA = "# noqa"
     PY_PYLINT = "# pylint: disable"
-    TS_ANY = "any"
+    TS_ANY = TsToken.ANY
     TS_IGNORE = "@ts-ignore"
     TS_NOCHECK = "@ts-nocheck"
     TS_EXPECT_ERROR = "@ts-expect-error"
@@ -61,7 +58,7 @@ def _inside_import(node: Node) -> bool:
 
 
 def _python_suppression(node: Node) -> Suppression | None:
-    is_any = node.type == Py.IDENTIFIER and text(node) == _ANY
+    is_any = node.type == Py.IDENTIFIER and text(node) == Suppression.PY_ANY
     return Suppression.PY_ANY if is_any and not _inside_import(node) else None
 
 
@@ -70,7 +67,7 @@ def _csharp_suppression(node: Node) -> Suppression | None:
         tokens = {text(c) for c in node.children}
         disables = {CsToken.WARNING, CsToken.DISABLE} <= tokens
         return Suppression.CS_PRAGMA if disables else None
-    name = field_text(node, _NAME) if node.type == Cs.ATTRIBUTE else None
+    name = field_text(node, SyntaxField.NAME) if node.type == Cs.ATTRIBUTE else None
     if name in (CsToken.SUPPRESS_MESSAGE, CsToken.SUPPRESS_MESSAGE_ATTRIBUTE):
         return Suppression.CS_SUPPRESS_MESSAGE
     return None

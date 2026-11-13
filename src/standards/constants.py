@@ -25,7 +25,7 @@ class Mode(StrEnum):
 class Check(StrEnum):
     """One name per check, used in annotations and the summary."""
 
-    PROJECT = "project.yml"
+    PROJECT = PROJECT_FILE
     PR_TITLE = "PR title"
     FILE_SIZE = "File size"
     FUNCTION_SIZE = "Function size"
@@ -34,7 +34,7 @@ class Check(StrEnum):
     SUPPRESSION = "Suppressions"
     PINNED_ACTION = "Pinned actions"
     RELEASE_TAG = "Release tag"
-    SIZE_EXCEPTIONS = "size-exceptions.txt"
+    SIZE_EXCEPTIONS = SIZE_EXCEPTIONS_FILE
 
 
 class Rule(StrEnum):

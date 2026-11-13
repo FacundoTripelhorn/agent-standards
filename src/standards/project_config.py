@@ -19,7 +19,7 @@ _LANGUAGE = re.compile(r"^[a-z]{2,3}(-[A-Z]{2})?$")
 class Field(StrEnum):
     """Keys of project.yml."""
 
-    KEY = "key"
+    KEY = "key"  # same-value: a project.yml field, not a syntax field
     LANGUAGE = "language"
     DOCS_LANGUAGE = "docs_language"
     TRACKER = "tracker"

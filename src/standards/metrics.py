@@ -10,12 +10,16 @@ from dataclasses import dataclass
 from tree_sitter import Node
 
 from standards.constants import LIMITS, Language, Unit
-from standards.node_types import ANONYMOUS, STATEMENT_SUFFIX, Cs, Py, Ts
+from standards.node_types import (
+    ANONYMOUS,
+    STATEMENT_SUFFIX,
+    Common,
+    Cs,
+    Py,
+    SyntaxField,
+    Ts,
+)
 from standards.syntax import code_rows, field_text, line_of, parse, walk
-
-_NAME = "name"
-_KEY = "key"
-_LEFT = "left"
 
 _FUNCTIONS: dict[Language, frozenset[str]] = {
     Language.PYTHON: frozenset({Py.FUNCTION}),
@@ -48,10 +52,9 @@ _FUNCTIONS[Language.JAVASCRIPT] = _FUNCTIONS[Language.TYPESCRIPT]
 _SCOPES = frozenset(
     {
         Py.CLASS,
-        Ts.CLASS,
+        Common.CLASS_DECLARATION,
         Ts.CLASS_EXPRESSION,
         Ts.ABSTRACT_CLASS,
-        Cs.CLASS,
         Cs.STRUCT,
         Cs.RECORD,
         Cs.INTERFACE,
@@ -63,10 +66,10 @@ _PY_STATEMENTS = frozenset({Py.FUNCTION, Py.CLASS})
 _PY_COUNTED = _PY_CLAUSES | _PY_STATEMENTS
 # A function value takes the name of what it is assigned to.
 _NAMING_PARENTS: dict[str, str] = {
-    Ts.VARIABLE_DECLARATOR: _NAME,
-    Ts.PAIR: _KEY,
-    Ts.FIELD: _NAME,
-    Ts.ASSIGNMENT: _LEFT,
+    Common.VARIABLE_DECLARATOR: SyntaxField.NAME,
+    Ts.PAIR: SyntaxField.KEY,
+    Ts.FIELD: SyntaxField.NAME,
+    Ts.ASSIGNMENT: SyntaxField.LEFT,
 }
 
 
@@ -87,7 +90,7 @@ def file_size(language: Language, source: str) -> int:
 
 
 def _own_name(node: Node) -> str:
-    name = field_text(node, _NAME)
+    name = field_text(node, SyntaxField.NAME)
     if name:
         return name
     parent = node.parent

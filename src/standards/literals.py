@@ -9,7 +9,17 @@ from dataclasses import dataclass
 from tree_sitter import Node
 
 from standards.constants import SAME_VALUE_MARKER, Language
-from standards.node_types import EQUALITY_OPERATORS, Cs, CsToken, Py, Ts, TsToken
+from standards.node_types import (
+    EQUALITY_OPERATORS,
+    Common,
+    Cs,
+    CsToken,
+    Keyword,
+    Py,
+    SyntaxField,
+    Ts,
+    TsToken,
+)
 from standards.syntax import (
     COMMENT_TYPES,
     STRING_TYPES,
@@ -21,12 +31,6 @@ from standards.syntax import (
     walk,
 )
 
-_OPERATOR = "operator"
-_LEFT = "left"
-_RIGHT = "right"
-_VALUE = "value"
-_NAME = "name"
-_KEY = "key"
 _MAIN_GUARD = frozenset({"__name__", "__main__"})
 # Type checkers narrow on these only when compared with a literal.
 _PLATFORM_OPERANDS = frozenset({"sys.platform", "os.name", "process.platform"})
@@ -79,18 +83,24 @@ def _is_typeof(node: Node | None) -> bool:
     return (
         node is not None
         and node.type == Ts.UNARY
-        and field_text(node, _OPERATOR) == TsToken.TYPEOF
+        and field_text(node, SyntaxField.OPERATOR) == TsToken.TYPEOF
     )
 
 
 def _ts_uses(node: Node) -> Iterator[Node]:
     if node.type == Ts.SWITCH_CASE:
-        value = node.child_by_field_name(_VALUE)
+        value = node.child_by_field_name(SyntaxField.VALUE)
         yield from _strings([value] if value is not None else [])
         return
-    if node.type != Ts.BINARY or field_text(node, _OPERATOR) not in EQUALITY_OPERATORS:
+    if (
+        node.type != Common.BINARY
+        or field_text(node, SyntaxField.OPERATOR) not in EQUALITY_OPERATORS
+    ):
         return
-    left, right = node.child_by_field_name(_LEFT), node.child_by_field_name(_RIGHT)
+    left, right = (
+        node.child_by_field_name(SyntaxField.LEFT),
+        node.child_by_field_name(SyntaxField.RIGHT),
+    )
     if _is_typeof(left) or _is_typeof(right):
         return
     if any(n is not None and text(n) in _PLATFORM_OPERANDS for n in (left, right)):
@@ -102,7 +112,10 @@ def _cs_uses(node: Node) -> Iterator[Node]:
     if node.type == Cs.CONSTANT_PATTERN:
         yield from _strings(node.named_children)
         return
-    if node.type == Cs.BINARY and field_text(node, _OPERATOR) in EQUALITY_OPERATORS:
+    if (
+        node.type == Common.BINARY
+        and field_text(node, SyntaxField.OPERATOR) in EQUALITY_OPERATORS
+    ):
         yield from _strings(node.named_children)
 
 
@@ -140,7 +153,10 @@ def _python_constants(root: Node) -> Iterator[tuple[str, Node]]:
         statement = node.parent
         if not _python_constant_scope(statement):
             continue
-        name, value = node.child_by_field_name(_LEFT), node.child_by_field_name(_RIGHT)
+        name, value = (
+            node.child_by_field_name(SyntaxField.LEFT),
+            node.child_by_field_name(SyntaxField.RIGHT),
+        )
         if name is None or value is None or name.type != Py.IDENTIFIER:
             continue
         if text(name).isupper() and value.type in STRING_TYPES:
@@ -165,7 +181,7 @@ def _python_owner(statement: Node) -> str:
     block = statement.parent
     owner = block.parent if block is not None else None
     if owner is not None and owner.type == Py.CLASS:
-        return f"{field_text(owner, _NAME)}."
+        return f"{field_text(owner, SyntaxField.NAME)}."
     return ""
 
 
@@ -179,20 +195,20 @@ def _ts_top_level(declaration: Node) -> bool:
 def _ts_constants(root: Node) -> Iterator[tuple[str, Node]]:
     for node in walk(root):
         if node.type == Ts.ENUM_ASSIGNMENT:
-            value = node.child_by_field_name(_VALUE)
+            value = node.child_by_field_name(SyntaxField.VALUE)
             if value is not None and value.type in STRING_TYPES:
-                yield field_text(node, _NAME) or "", value
-        if node.type != Ts.VARIABLE_DECLARATOR or node.parent is None:
+                yield field_text(node, SyntaxField.NAME) or "", value
+        if node.type != Common.VARIABLE_DECLARATOR or node.parent is None:
             continue
         declaration = node.parent
         is_const = (
             declaration.child(0) is not None
-            and text(declaration.child(0)) == TsToken.CONST
+            and text(declaration.child(0)) == Keyword.CONST
         )
-        value = node.child_by_field_name(_VALUE)
+        value = node.child_by_field_name(SyntaxField.VALUE)
         if not (is_const and _ts_top_level(declaration)) or value is None:
             continue
-        name = field_text(node, _NAME) or ""
+        name = field_text(node, SyntaxField.NAME) or ""
         if value.type in STRING_TYPES:
             yield name, value
         elif value.type == Ts.AS_EXPRESSION and value.named_children:
@@ -203,14 +219,14 @@ def _ts_object_members(owner: str, obj: Node) -> Iterator[tuple[str, Node]]:
     if obj.type != Ts.OBJECT:
         return
     for pair in obj.named_children:
-        value = pair.child_by_field_name(_VALUE)
+        value = pair.child_by_field_name(SyntaxField.VALUE)
         if pair.type == Ts.PAIR and value is not None and value.type in STRING_TYPES:
-            yield f"{owner}.{field_text(pair, _KEY)}", value
+            yield f"{owner}.{field_text(pair, SyntaxField.KEY)}", value
 
 
 def _cs_is_constant(field: Node) -> bool:
     modifiers = {text(m) for m in field.named_children if m.type == Cs.MODIFIER}
-    return CsToken.CONST in modifiers or {CsToken.STATIC, CsToken.READONLY} <= modifiers
+    return Keyword.CONST in modifiers or {CsToken.STATIC, CsToken.READONLY} <= modifiers
 
 
 def _cs_constants(root: Node) -> Iterator[tuple[str, Node]]:
@@ -218,11 +234,11 @@ def _cs_constants(root: Node) -> Iterator[tuple[str, Node]]:
         if node.type != Cs.FIELD or not _cs_is_constant(node):
             continue
         for declarator in walk(node):
-            if declarator.type != Cs.VARIABLE_DECLARATOR:
+            if declarator.type != Common.VARIABLE_DECLARATOR:
                 continue
             values = [c for c in declarator.named_children if c.type in STRING_TYPES]
             if values:
-                yield field_text(declarator, _NAME) or "", values[0]
+                yield field_text(declarator, SyntaxField.NAME) or "", values[0]
 
 
 _CONSTANTS = {
