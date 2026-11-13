@@ -18,6 +18,18 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
+  standards:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          fetch-depth: 0  # the checks compare against the base commit
+      # Pin to the agent-standards commit this repository adopted.
+      - uses: FacundoTripelhorn/agent-standards@<commit sha>  # v<version>
+        with:
+          mode: warn  # fail, once the warnings are understood
+
   check:
     runs-on: ubuntu-latest
     timeout-minutes: 15

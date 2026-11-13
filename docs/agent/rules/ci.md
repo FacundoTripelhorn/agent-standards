@@ -1,6 +1,6 @@
 # CI and the justfile
 
-<!-- agent-standards v0.6 — synced from agent-standards. Edit it there, not here. -->
+<!-- agent-standards v0.7 — synced from agent-standards. Edit it there, not here. -->
 
 Read before changing a workflow under `.github/workflows/` or the `justfile`.
 Both changes need the owner's approval first (shared rules, "Ask the owner
@@ -35,9 +35,14 @@ requires the same checks:
 | `test` | Toolchain setup, then `just test` |
 | `build` | Toolchain setup, then `just build` |
 
-The shared checks from agent-standards (size, literals, PR title and branch
-name) run in a `standards` job that calls agent-standards' reusable
-workflow. Jobs that
+The shared checks from agent-standards run in a `standards` job that uses
+the agent-standards action, pinned by SHA, after a checkout with
+`fetch-depth: 0`. It checks `project.yml`, the PR title, file and function
+size, literal comparisons, duplicate constant values, suppressions, pinned
+actions, release tags and secrets (gitleaks). Findings appear on the lines
+of the PR diff, each with the fix and the rule. It starts in `mode: warn`;
+the owner switches a repository to `mode: fail` once its warnings are
+understood. Secrets fail in either mode. Jobs that
 only make sense for one project (a Windows build, a Docker image) are extra
 jobs, listed in `docs/agent/verification-matrix.md`.
 

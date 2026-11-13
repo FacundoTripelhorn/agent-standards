@@ -1,4 +1,4 @@
-<!-- agent-standards:base v0.6 — synced from agent-standards. Edit it there, not here. -->
+<!-- agent-standards:base v0.7 — synced from agent-standards. Edit it there, not here. -->
 ## Shared rules
 
 These rules apply to all of the owner's repositories. The project sections

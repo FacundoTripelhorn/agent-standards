@@ -67,6 +67,15 @@ Unity cases that are real:
 - `Update`, `LateUpdate` and `FixedUpdate` attract code. Keep them as a short
   sequence of named calls (`ApplyFootLock()`, `BlendClips()`).
 
+## What the shared check measures
+
+The shared CI check measures file size and function size with the units
+above (statements for Python functions, lines for TypeScript, lines of code
+for C#). Complexity, nesting and parameter counts are left to each
+language's linter in `just check`. Function size is not checked in test
+files: a test suite is one long `describe` callback by design. Their file
+size still is.
+
 ## Exceptions
 
 `size-exceptions.txt`, one path per line with a reason:
