@@ -1,6 +1,6 @@
 # Security and user data
 
-<!-- agent-standards v0.5 — synced from agent-standards. Edit it there, not here. -->
+<!-- agent-standards v0.6 — synced from agent-standards. Edit it there, not here. -->
 
 Read before handling input from outside the process, files, persistence or secrets.
 
@@ -31,6 +31,9 @@ data from the database that a user wrote, and LLM output.
   stored under generated names.
 - **Secrets** live only in the environment or a secret store, never in code,
   logs, fixtures, test output, PR text or commits.
+- **Environment variables:** if the project reads any, `.env.example` lists
+  every one of them, each with a comment and no real value. It is the only
+  list; add, rename or remove a variable there in the same PR.
 
 ## User data and persistence
 

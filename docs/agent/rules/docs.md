@@ -1,6 +1,6 @@
 # Documentation
 
-<!-- agent-standards v0.5 — synced from agent-standards. Edit it there, not here. -->
+<!-- agent-standards v0.6 — synced from agent-standards. Edit it there, not here. -->
 
 Read before creating, moving or editing any document.
 
@@ -21,7 +21,7 @@ them.
 | `docs/agent/verification-matrix.md` | Which checks to run for which kind of change, including manual steps only the owner can do. |
 | `docs/agent/known-non-bugs.md` | Behaviour that looks wrong but is intended, so nobody "fixes" it. |
 | `docs/agent/rules/` | Shared rules, synced from agent-standards. Never edited in the repository. |
-| `docs/design.md` | How the system works now, and why (optional, for projects that need it). |
+| `docs/design.md` | How the system works now, and why (optional). Expands the Architecture section of `AGENTS.md` without repeating its module order or invariants. Headings: Context, Components, Data flow, External systems, Trade-offs that still hold. |
 
 - **Project-specific documents** that a project genuinely needs (a game's
   design docs, an operator setup guide, license files that must sit next to

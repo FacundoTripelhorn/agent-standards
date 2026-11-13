@@ -16,11 +16,10 @@ not change. -->
 
 | Check | Result |
 |---|---|
-| Lint | |
-| Format (check mode) | |
-| Types | |
-| Tests | |
-| Build | |
+| `just check` | |
+| `just test` | |
+| `just build` | |
+| Other (from `verification-matrix.md`) | |
 
 ## Base rules checklist
 

@@ -1,8 +1,9 @@
 # Workflow
 
-<!-- agent-standards v0.5 — synced from agent-standards. Edit it there, not here. -->
+<!-- agent-standards v0.6 — synced from agent-standards. Edit it there, not here. -->
 
-Read before creating a branch, committing, opening a PR or writing in an issue.
+Read before creating a branch, committing, opening a PR, writing in an issue
+or making a release.
 
 ## Issues, branches and commits
 
@@ -46,11 +47,15 @@ Read before creating a branch, committing, opening a PR or writing in an issue.
   except domain terms that have no good English equivalent (for example
   `factura`, `emisor`, `CUIT`), which keep their original name.
 
-## CI is the source of truth
+## Versions and releases
 
-- Every check you are told to run locally also runs in CI, on pull requests
-  and on pushes to the default branch.
-- A check that could not run must not look like a pass. A skipped test job
-  fails or shows a visible warning, and a required check proves the tests
-  ran.
-- Formatters run in check mode in CI. Do not commit unformatted code.
+- Versions follow SemVer (`MAJOR.MINOR.PATCH`). While the major version is
+  0, a breaking change bumps the minor version.
+- The version is written in one place: the file named by `version_file` in
+  `project.yml`. Nothing else states it; code that needs it reads it from
+  there or from the installed package metadata.
+- A release is a PR whose issue asks for it: it changes only the version,
+  and after it merges the owner tags that commit `v<version>`. CI checks that
+  the tag matches `version_file`.
+- There is no changelog file. Release notes are the one-line commits between
+  two tags (`git log --oneline v0.2.0..v0.3.0`), which are the issue titles.

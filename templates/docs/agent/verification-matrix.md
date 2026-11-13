@@ -7,9 +7,9 @@ PR; this page tells you what to run while working and what CI cannot prove.
 
 | Step | Command | When |
 |---|---|---|
-| Lint and format | `make fix`, then `make check` | Every change |
-| Tests | `make test` | Every change |
-| Build | `<command>` | Changes to packaging or the build |
+| Lint, format and types | `just fix`, then `just check` | Every change |
+| Tests | `just test` | Every change |
+| Build | `just build` | Changes to packaging or the build |
 
 ## Narrow checks by task type
 

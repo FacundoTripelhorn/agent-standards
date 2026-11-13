@@ -18,13 +18,17 @@ tracker: linear
 # the portfolio review lists it but does not suggest next steps.
 status: active
 
+# The one package manager of this repository. One of: uv, pnpm, npm, unity.
+package_manager: uv
+
+# The file that holds the version (SemVer). The only place it is written.
+# pyproject.toml, package.json or ProjectSettings/ProjectSettings.asset.
+version_file: pyproject.toml
+
+# none: not released. tag: a release is a v<version> tag.
+# package: a tag, plus a built artifact (installer, registry package, game build).
+release: package
+
 # Optional. Only if the repository's default branch should not be read from
 # the remote (it normally is: main or master both work).
 # default_branch: master
-
-# Commands every repository exposes under the same names (see Makefile).
-# They are listed here so agents do not have to guess.
-commands:
-  check: make check     # lint + format check + types + tests
-  fix: make fix         # format and autofix
-  test: make test
