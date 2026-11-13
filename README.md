@@ -30,6 +30,7 @@ itself (`project.yml`), the issue and PR templates, and the size thresholds.
 | DeskPet | `DPET` | GitHub | en | en | main | active |
 | GhostMCP | `GHOST` | GitHub | en | en | main | active |
 | GroceryAgent | `GA` | Linear | en | en | master | paused |
+| agent-standards | `AST` | GitHub | en | en | main | active |
 
 Each project numbers its own issues: `FAC` and `GA` in Linear, the others in
 GitHub Issues of their repository.

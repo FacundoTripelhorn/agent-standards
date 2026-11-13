@@ -58,6 +58,13 @@ def repo(tmp_path: Path) -> Repo:
     return created
 
 
+@pytest.fixture(autouse=True)
+def no_github_environment(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Tests run inside CI too: never read the real run's event or summary."""
+    for name in ("GITHUB_EVENT_PATH", "GITHUB_REF", "GITHUB_STEP_SUMMARY"):
+        monkeypatch.delenv(name, raising=False)
+
+
 @pytest.fixture
 def event(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Callable[..., None]:
     """Write a GitHub event payload and point the environment at it."""
@@ -68,7 +75,4 @@ def event(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Callable[..., None
         monkeypatch.setenv("GITHUB_EVENT_PATH", str(path))
         monkeypatch.setenv("GITHUB_REF", ref)
 
-    monkeypatch.delenv("GITHUB_EVENT_PATH", raising=False)
-    monkeypatch.delenv("GITHUB_REF", raising=False)
-    monkeypatch.delenv("GITHUB_STEP_SUMMARY", raising=False)
     return _set

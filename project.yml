@@ -1,0 +1,8 @@
+# agent-standards follows its own rules. Format: project.example.yml.
+key: AST
+language: en
+tracker: github
+status: active
+package_manager: uv
+version_file: pyproject.toml
+release: tag
