@@ -1,6 +1,6 @@
 # Workflow
 
-<!-- agent-standards v0.6 — synced from agent-standards. Edit it there, not here. -->
+<!-- agent-standards v0.7 — synced from agent-standards. Edit it there, not here. -->
 
 Read before creating a branch, committing, opening a PR, writing in an issue
 or making a release.

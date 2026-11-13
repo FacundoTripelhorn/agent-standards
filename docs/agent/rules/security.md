@@ -1,6 +1,6 @@
 # Security and user data
 
-<!-- agent-standards v0.6 — synced from agent-standards. Edit it there, not here. -->
+<!-- agent-standards v0.7 — synced from agent-standards. Edit it there, not here. -->
 
 Read before handling input from outside the process, files, persistence or secrets.
 

@@ -1,6 +1,6 @@
 # Code rules
 
-<!-- agent-standards v0.6 — synced from agent-standards. Edit it there, not here. -->
+<!-- agent-standards v0.7 — synced from agent-standards. Edit it there, not here. -->
 
 Read before writing or changing code.
 
@@ -51,14 +51,21 @@ that name everywhere. How many times it appears today does not matter.
 - **Not covered:** user-facing copy (it belongs to the i18n or copy layer of
   the project), log message text, test data, docstrings, and language idioms
   (`__name__ == "__main__"`, `0`, `1`, the empty string).
-- CI enforces this two ways, both with the ratchet (existing cases are
-  listed, new ones fail):
+- **Two constants with the same value** on purpose (different concepts)
+  carry a `same-value: <why>` comment on the line, or the line above, so
+  the duplicate check and the reviewer can see it was deliberate.
+- **Exempt idioms:** `__name__ == "__main__"`, `typeof x === "string"`, and
+  platform checks (`sys.platform`, `os.name`, `process.platform`), which
+  type checkers only narrow when written with the literal.
+- CI enforces this two ways, both as a ratchet (only new cases are
+  reported):
   - Linters flag comparisons against literals: ruff `PLR2004` with
     `allow-magic-value-types = []` in Python (its default ignores strings),
     and an ESLint `no-restricted-syntax` rule in TypeScript.
-  - The shared literal check, for every language including C#, flags the same
-    string literal in two places, a comparison or `switch` case on a string
-    literal, and two constants defined with the same value.
+  - The shared check, for Python, TypeScript, JavaScript and C#, flags new
+    comparisons and `switch`/`case`/`match` labels on string literals, and
+    new constants whose value another constant already has. Test files are
+    exempt.
 
 ## Types
 
@@ -66,7 +73,10 @@ that name everywhere. How many times it appears today does not matter.
   new `@ts-nocheck` or `@ts-ignore`, no new `#pragma warning disable`.
 - Data that crosses a layer (database row to template, API response to
   domain) gets a typed model rather than a raw dict or row.
-- The number of existing suppressions may only go down (CI counts them).
+- The number of existing suppressions in a file may only go down. CI counts
+  `Any`, `# type: ignore`, `# noqa`, `# pylint: disable`, `any`,
+  `@ts-ignore`, `@ts-nocheck`, `@ts-expect-error`, `eslint-disable`,
+  `#pragma warning disable` and `[SuppressMessage]`.
 
 ## Errors
 
