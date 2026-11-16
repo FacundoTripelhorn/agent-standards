@@ -6,6 +6,7 @@ on:
   pull_request:
   push:
     branches: [main]
+    tags: ["v*"]  # release tags: the standards job checks them against version_file
   workflow_dispatch:
 
 permissions:

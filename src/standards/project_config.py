@@ -87,7 +87,11 @@ def _finding(message: str, line: int | None = None) -> Finding:
 
 
 def _field_problems(data: dict[str, object], repo: Path) -> list[str]:
-    problems = [f"`{f.value}` is missing." for f in _REQUIRED if f.value not in data]
+    problems = [
+        f"`{f.value}` is missing or empty."
+        for f in _REQUIRED
+        if data.get(f.value) in (None, "")
+    ]
     known = {f.value for f in Field}
     problems += [f"`{k}` is not a known field." for k in data if k not in known]
     for field, choices in _CHOICES.items():

@@ -8,6 +8,7 @@ on:
   pull_request:
   push:
     branches: [main]  # or master: the repository's default branch
+    tags: ["v*"]  # release tags: the standards job checks them against version_file
   workflow_dispatch:
 
 permissions:

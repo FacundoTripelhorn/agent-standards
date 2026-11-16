@@ -53,16 +53,31 @@ def has_commit(repo: Path, rev: str) -> bool:
     return result.returncode == 0
 
 
-def _parse_status_line(line: str) -> tuple[str, str | None] | None:
-    parts = line.split("\t")
-    letter = parts[0][:1]
-    if letter in (Status.RENAMED, Status.COPIED):
-        return parts[2], parts[1]
-    if letter == Status.MODIFIED:
-        return parts[1], parts[1]
-    if letter == Status.ADDED:
-        return parts[1], None
-    return None
+# `git diff --name-status -z` separates fields with NUL, so paths are exact
+# (no quoting of non-ASCII characters, tabs or quotes).
+NUL = "\0"
+_TWO_PATHS = frozenset({Status.RENAMED, Status.COPIED})
+
+
+def _parse_status_records(out: str) -> list[tuple[str, str | None]]:
+    """(path, path at the base) for each added, modified, renamed or copied
+    file. Renames and copies carry two paths, the others one."""
+    fields = out.split(NUL)
+    records: list[tuple[str, str | None]] = []
+    index = 0
+    while index < len(fields) and fields[index]:
+        letter = fields[index][:1]
+        if letter in _TWO_PATHS:
+            records.append((fields[index + 2], fields[index + 1]))
+            index += 3
+            continue
+        path = fields[index + 1]
+        if letter == Status.MODIFIED:
+            records.append((path, path))
+        elif letter == Status.ADDED:
+            records.append((path, None))
+        index += 2
+    return records
 
 
 def added_lines(repo: Path, base: str, path: str) -> frozenset[int]:
@@ -80,14 +95,13 @@ def added_lines(repo: Path, base: str, path: str) -> frozenset[int]:
 
 def changed_files(repo: Path, base: str) -> list[Change]:
     """Files added, modified or renamed between the base and HEAD."""
-    out = git(repo, "diff", "--name-status", "-M", "--diff-filter=AMRC", base, "HEAD")
-    changes = []
-    for line in out.splitlines():
-        parsed = _parse_status_line(line)
-        if parsed:
-            path, base_path = parsed
-            changes.append(Change(path, base_path, added_lines(repo, base, path)))
-    return changes
+    out = git(
+        repo, "diff", "--name-status", "-z", "-M", "--diff-filter=AMRC", base, "HEAD"
+    )
+    return [
+        Change(path, base_path, added_lines(repo, base, path))
+        for path, base_path in _parse_status_records(out)
+    ]
 
 
 def show(repo: Path, rev: str, path: str) -> str | None:
@@ -104,4 +118,5 @@ def show(repo: Path, rev: str, path: str) -> str | None:
 
 def tracked_files(repo: Path, rev: str = "HEAD") -> list[str]:
     """Every file git tracks at a commit."""
-    return git(repo, "ls-tree", "-r", "--name-only", rev).splitlines()
+    out = git(repo, "ls-tree", "-r", "-z", "--name-only", rev)
+    return [path for path in out.split(NUL) if path]

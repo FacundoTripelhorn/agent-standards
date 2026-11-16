@@ -35,6 +35,16 @@ def test_invalid_project_lists_every_problem(repo: Repo) -> None:
         assert expected in messages
 
 
+def test_empty_required_field_is_a_finding_not_a_crash(repo: Repo) -> None:
+    repo.write(
+        "project.yml",
+        "key: GHOST\nlanguage: en\ntracker: github\nstatus: active\n"
+        "package_manager: pnpm\nversion_file: package.json\nrelease:\n",
+    )
+    project, [finding] = load_project(repo.root)
+    assert project is None and "`release` is missing or empty" in finding.message
+
+
 def test_missing_project_file(tmp_path: Path) -> None:
     project, [finding] = load_project(tmp_path)
     assert project is None and "missing" in finding.message

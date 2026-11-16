@@ -86,6 +86,24 @@ def test_deliberate_suppression_with_a_reason_is_not_reported(repo: Repo) -> Non
     assert of(checks(repo, base), Check.SUPPRESSION) == []
 
 
+def test_non_ascii_paths_are_read_exactly(repo: Repo) -> None:
+    repo.write("src/café.ts", "export const a = 1;\n")
+    base = repo.commit()
+    repo.write("src/café.ts", "// @ts-ignore\nexport const a: any = 1;\n")
+    repo.commit()
+    found = of(checks(repo, base), Check.SUPPRESSION)
+    # One finding per kind (`@ts-ignore` and `any`), both on the exact path.
+    assert sorted(f.path for f in found) == ["src/café.ts", "src/café.ts"]
+
+
+def test_renamed_file_keeps_its_base_for_the_ratchet(repo: Repo) -> None:
+    repo.write("src/old name.ts", long_function(60))
+    base = repo.commit()
+    (repo.root / "src/old name.ts").rename(repo.root / "src/new name.ts")
+    repo.commit()
+    assert of(checks(repo, base), Check.FUNCTION_SIZE) == []
+
+
 def test_unpinned_action_in_a_changed_workflow(repo: Repo) -> None:
     base = repo.commit()
     repo.write(
