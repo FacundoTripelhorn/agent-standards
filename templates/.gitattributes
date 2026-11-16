@@ -1,5 +1,6 @@
 # Lockfiles are generated: GitHub collapses them in PR diffs.
-# Keep the lines for the lockfiles this repository has.
+# Keep the lines for the lockfiles this repository has. If the repository
+# already has a .gitattributes, add these lines to it: never replace it.
 uv.lock linguist-generated=true
 pnpm-lock.yaml linguist-generated=true
 package-lock.json linguist-generated=true
