@@ -11,6 +11,8 @@ updates:
     groups:
       actions:
         patterns: ["*"]
+        # Majors stay out of the group: each is its own PR (dependencies.md).
+        update-types: ["minor", "patch"]
 
   # package_manager: uv
   - package-ecosystem: "uv"
