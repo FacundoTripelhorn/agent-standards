@@ -19,8 +19,9 @@ shared rules. This project also has:
 
 ## Architecture
 
-- **Modules:** `run` → `checks_repo`, `checks_code` → `metrics`,
-  `suppressions` → `syntax` → `node_types`. `context`, `gitio`,
+- **Modules:** `run` → `checks_repo`, `checks_code`, `check_shared` →
+  `metrics`, `suppressions`, `shared` → `syntax` → `node_types`. `sync`
+  (the `standards-sync` command) → `shared`. `context`, `gitio`,
   `project_config`, `findings` and `constants` are used by all of them.
   Imports only go in the direction of the arrows.
 - **External systems:** git (through `gitio` only), the GitHub event file

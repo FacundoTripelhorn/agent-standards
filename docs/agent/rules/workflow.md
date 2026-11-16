@@ -54,7 +54,14 @@ or making a release.
   0, a breaking change bumps the minor version.
 - The version is written in one place: the file named by `version_file` in
   `project.yml`. Nothing else states it; code that needs it reads it from
-  there or from the installed package metadata.
+  there or from the installed package metadata. The one exception is the
+  header of the shared copies (`AGENTS.md` block, `docs/agent/rules/`): it
+  names the agent-standards version on purpose, so a repository shows which
+  release its copies came from.
+- The shared copies change only through `standards-sync`, never by hand.
+  Updating a repository to a new agent-standards release is one PR: move the
+  action's pin to the new commit, then run
+  `uvx --from git+https://github.com/FacundoTripelhorn/agent-standards@<sha> standards-sync` with that commit.
 - A release is a PR whose issue asks for it: it changes only the version,
   and after it merges the owner tags that commit `v<version>`. CI checks that
   the tag matches `version_file`.

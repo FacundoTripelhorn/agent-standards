@@ -52,25 +52,34 @@ GitHub Issues of their repository.
 One PR per repository, for its own issue (`<KEY>-<n> Adopt the shared rules`):
 
 1. `project.yml` from `project.example.yml`.
-2. `AGENTS.md`: the project part from `templates/AGENTS.md`, then the block
-   from `AGENTS.base.md`, markers included. With Claude Code, a `CLAUDE.md`
-   containing `@AGENTS.md`.
-3. `docs/agent/rules/` copied from here.
+2. `AGENTS.md`: the project part from `templates/AGENTS.md`. With Claude
+   Code, a `CLAUDE.md` containing `@AGENTS.md`.
+3. The shared copies, written by `standards-sync` from the version the
+   repository pins: the block in `AGENTS.md`, `docs/agent/rules/` and the PR
+   template.
+
+   ```
+   uvx --from git+https://github.com/FacundoTripelhorn/agent-standards@<sha> standards-sync
+   ```
 4. `docs/agent/repo-map.md`, `verification-matrix.md` and `known-non-bugs.md`
    from `templates/docs/agent/`, filled in for the repository.
 5. A `justfile` from `templates/just/` and CI from
    `templates/.github/workflows/ci.yml`, with the action pinned to a commit
    SHA of this repository.
-6. `.github/dependabot.yml`, `.gitattributes`, and the PR and issue templates.
+6. `.github/dependabot.yml`, `.gitattributes`, and the issue template.
 7. Documents outside the list in `docs/agent/rules/docs.md`: fold what is
    still true into the standard ones, and list the rest under "Other
    documents" in `AGENTS.md` or remove them, with the owner's approval.
 8. Settings, done by the owner: squash merge only with the PR title as the
    commit, and `standards`, `check`, `test` and `build` as required checks.
 
-The block in `AGENTS.md` and `docs/agent/rules/` are copies: when they change
-here, the repository copies them again in a PR. agent-standards itself skips
-steps 2 and 3, because it holds the originals.
+The shared copies are real files, because agents only reliably read what is
+in the repository they work on. They are never edited by hand: the
+`standards` job reports a copy that differs from the pinned version, and
+`standards-sync` rewrites it. To move a repository to a new release, update
+the action's pin (Dependabot proposes it) and run `standards-sync` with the
+same commit in that PR. agent-standards itself skips step 3, because it holds
+the originals.
 
 ## The shared check
 

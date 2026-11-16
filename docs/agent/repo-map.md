@@ -49,5 +49,9 @@ Where things live, by the kind of task. Read this before searching the code.
 | Counting suppressions, `allow-suppression:` | `src/standards/suppressions.py` |
 | Parsing, tree-sitter node names | `src/standards/syntax.py`, `src/standards/node_types.py` |
 | Annotations and job summary | `src/standards/findings.py` |
+| Which files are shared copies, the `AGENTS.md` block markers | `src/standards/shared.py` |
+| `standards-sync` (writes the copies) | `src/standards/sync.py` |
+| Drift check of the copies | `src/standards/check_shared.py` |
+| Bundling the shared files into the package | `pyproject.toml` (`force-include`) |
 | Secrets (gitleaks) | `action.yml` |
 | Tests | `tests/test_<module>.py`; end to end in `tests/test_checks.py` |
