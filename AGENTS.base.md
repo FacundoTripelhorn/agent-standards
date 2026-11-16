@@ -50,10 +50,11 @@ says so. Report that check as "not run", never as passed.
   move code out of it before you add anything.
 - Use a named constant or enum for every value the code compares, branches
   on, stores or sends, even if it appears only once: `Status.PAID`, not
-  `"paid"`. Each value gets one name: copying it into a second constant to
-  get past the check breaks this rule.
+  `"paid"`. Each value gets one name: copying it into a second constant
+  under another name breaks this rule. Reviewers check this; CI does not.
 - Type all new code. Do not add `Any`, `@ts-nocheck`, `@ts-ignore` or
-  `#pragma warning disable`.
+  `#pragma warning disable`, unless it is deliberate: then add
+  `allow-suppression: <why>` in a comment on that line.
 - Handle every error or let it propagate. Never catch an error and do
   nothing with it.
 - Each piece of logic lives in one place. If two languages share a data

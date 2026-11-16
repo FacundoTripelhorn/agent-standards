@@ -1,13 +1,13 @@
-"""Ratchet checks on changed source files: size, literal comparisons and
-suppressions. Each compares the file at HEAD with the same file at the
-base commit, so existing debt is reported only when it grows."""
+"""Ratchet checks on changed source files: size and suppressions. Each
+compares the file at HEAD with the same file at the base commit, so existing
+debt is reported only when it grows."""
 
 from __future__ import annotations
 
-from collections import Counter
 from pathlib import Path
 
 from standards.constants import (
+    ALLOW_SUPPRESSION_MARKER,
     COMMENT_PREFIX,
     LIMITS,
     SIZE_EXCEPTIONS_FILE,
@@ -18,7 +18,6 @@ from standards.constants import (
 from standards.context import Context
 from standards.findings import Finding
 from standards.gitio import Change, show
-from standards.literals import literal_comparisons
 from standards.metrics import file_size, function_sizes
 from standards.suppressions import count_suppressions
 from standards.syntax import is_test_path, language_for
@@ -128,32 +127,6 @@ def check_size(context: Context) -> list[Finding]:
     return findings
 
 
-def check_literals(context: Context) -> list[Finding]:
-    """No new comparisons or case labels on string literals."""
-    findings = []
-    for change in context.changes:
-        language = language_for(change.path)
-        if language is None or is_test_path(change.path):
-            continue
-        head, base = _sources(context, change)
-        now = literal_comparisons(language, head)
-        before = Counter(u.value for u in literal_comparisons(language, base or ""))
-        grown = {v for v, n in Counter(u.value for u in now).items() if n > before[v]}
-        for use in now:
-            if use.value in grown and use.line in change.added_lines:
-                findings.append(
-                    Finding(
-                        Check.LITERAL,
-                        f'Compares against the literal "{use.value}".',
-                        "Use a named constant or enum member for this value.",
-                        Rule.CODE,
-                        change.path,
-                        use.line,
-                    )
-                )
-    return findings
-
-
 def check_suppressions(context: Context) -> list[Finding]:
     """The number of each kind of suppression in a file does not go up."""
     findings = []
@@ -171,7 +144,8 @@ def check_suppressions(context: Context) -> list[Finding]:
                         Check.SUPPRESSION,
                         f"Adds {count - before[kind]} `{kind.value}` "
                         f"(now {count}, was {before[kind]}).",
-                        "Type the value or fix the warning instead of silencing it.",
+                        "Type the value or fix the warning. If it is deliberate, add "
+                        f"`{ALLOW_SUPPRESSION_MARKER} <why>` on its line.",
                         Rule.CODE,
                         change.path,
                     )

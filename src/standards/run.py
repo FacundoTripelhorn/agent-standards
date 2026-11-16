@@ -5,8 +5,7 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
-from standards.check_duplicates import check_duplicate_values
-from standards.checks_code import check_literals, check_size, check_suppressions
+from standards.checks_code import check_size, check_suppressions
 from standards.checks_repo import (
     check_pinned_actions,
     check_pr_title,
@@ -26,8 +25,6 @@ def collect(repo: Path, base: str | None) -> tuple[list[Finding], list[str]]:
     findings += check_release_tag(context, project)
     findings += check_pinned_actions(context)
     findings += check_size(context)
-    findings += check_literals(context)
-    findings += check_duplicate_values(context)
     findings += check_suppressions(context)
     return findings, notes
 

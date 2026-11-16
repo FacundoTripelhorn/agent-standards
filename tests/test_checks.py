@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 from collections.abc import Callable
+from pathlib import Path
 
 from conftest import Repo
+from standards.checks_repo import read_version
 from standards.constants import Check
 from standards.findings import Finding
 from standards.run import collect
@@ -62,31 +64,6 @@ def test_size_exception_is_reported_but_not_blocking(repo: Repo) -> None:
     assert missing_reason.line == 2
 
 
-def test_literal_check_only_reports_added_comparisons(repo: Repo) -> None:
-    repo.write("src/a.py", 'def f(s):\n    return s == "old"\n')
-    base = repo.commit()
-    repo.write("src/a.py", 'def f(s):\n    return s == "old" or s == "new"\n')
-    repo.write("tests/test_a.py", 'def test():\n    assert "x" == "x"\n')
-    repo.commit()
-    found = of(checks(repo, base), Check.LITERAL)
-    assert [(f.path, f.line, f.message) for f in found] == [
-        ("src/a.py", 2, 'Compares against the literal "new".')
-    ]
-
-
-def test_new_duplicate_constant_is_reported_unless_marked(repo: Repo) -> None:
-    repo.write("src/a.py", 'STATUS = "paid"\n')
-    repo.write("src/old.py", 'OLD_A = "same"\nOLD_B = "same"\n')
-    base = repo.commit()
-    repo.write(
-        "src/b.py",
-        'PAID = "paid"\n# same-value: a tab name, not a status\nTAB = "paid"\n',
-    )
-    repo.commit()
-    found = of(checks(repo, base), Check.DUPLICATE_VALUE)
-    assert [(f.path, f.line) for f in found] == [("src/b.py", 1)]
-
-
 def test_added_suppression_is_reported(repo: Repo) -> None:
     repo.write("src/a.ts", "// @ts-ignore\nexport const a = 1;\n")
     base = repo.commit()
@@ -94,6 +71,19 @@ def test_added_suppression_is_reported(repo: Repo) -> None:
     repo.commit()
     [finding] = of(checks(repo, base), Check.SUPPRESSION)
     assert "`any`" in finding.message
+
+
+def test_deliberate_suppression_with_a_reason_is_not_reported(repo: Repo) -> None:
+    repo.write("src/a.py", "X = 1\n")
+    base = repo.commit()
+    repo.write(
+        "src/a.py",
+        "from typing import Any\n"
+        "# allow-suppression: json.loads returns arbitrary data here\n"
+        "def load(raw: str) -> Any:\n    return raw\n",
+    )
+    repo.commit()
+    assert of(checks(repo, base), Check.SUPPRESSION) == []
 
 
 def test_unpinned_action_in_a_changed_workflow(repo: Repo) -> None:
@@ -117,6 +107,25 @@ def test_pr_title(repo: Repo, event: Callable[..., None]) -> None:
     assert "GHOST-<number>" in finding.message
     event({"pull_request": {"title": "GHOST-47 Compare armour", "base": {"sha": base}}})
     assert of(collect(repo.root, None)[0], Check.PR_TITLE) == []
+
+
+def test_read_version_for_each_version_file(tmp_path: Path) -> None:
+    files = {
+        "pyproject.toml": '[project]\nname = "x"\nversion = "0.7.0"\n',
+        "package.json": '{"version": "1.2.3"}',
+        "ProjectSettings.asset": "PlayerSettings:\n  bundleVersion: 0.1.0\n",
+        "setup.cfg": "[metadata]\nversion = 9.9.9\n",
+    }
+    found = {}
+    for name, content in files.items():
+        (tmp_path / name).write_text(content, encoding="utf-8")
+        found[name] = read_version(tmp_path / name)
+    assert found == {
+        "pyproject.toml": "0.7.0",
+        "package.json": "1.2.3",
+        "ProjectSettings.asset": "0.1.0",
+        "setup.cfg": None,
+    }
 
 
 def test_release_tag_must_match_version_file(

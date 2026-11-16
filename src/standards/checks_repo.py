@@ -6,7 +6,7 @@ from __future__ import annotations
 import json
 import re
 import tomllib
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator
 from enum import StrEnum
 from pathlib import Path, PurePosixPath
 
@@ -17,8 +17,12 @@ from standards.context import Context
 from standards.findings import Finding
 from standards.project_config import Project, Release
 
-_SHA_PIN = re.compile(r"@[0-9a-f]{40}$")
-_UNITY_VERSION = re.compile(r"^\s*bundleVersion:\s*(\S+)\s*$", re.MULTILINE)
+# `owner/action@<40 hex characters>`: pinned to a full commit SHA.
+PINNED_TO_COMMIT = re.compile(r"@[0-9a-f]{40}$")
+# The `bundleVersion: 1.2.3` line of Unity's ProjectSettings.asset.
+UNITY_BUNDLE_VERSION = re.compile(r"^\s*bundleVersion:\s*(\S+)\s*$", re.MULTILINE)
+# `<KEY>-<number> <title>`; formatted with the project key.
+PR_TITLE = r"^{key}-\d+ \S"
 _WORKFLOWS_DIR = ".github/workflows"
 _ACTION_FILES = frozenset({"action.yml", "action.yaml"})
 _YAML_SUFFIXES = frozenset({".yml", ".yaml"})
@@ -46,7 +50,7 @@ def check_pr_title(context: Context, project: Project | None) -> list[Finding]:
     title = context.event.pr_title
     if title is None or project is None:
         return []
-    pattern = re.compile(rf"^{re.escape(project.key)}-\d+ \S")
+    pattern = re.compile(PR_TITLE.format(key=re.escape(project.key)))
     if pattern.match(title):
         return []
     return [
@@ -93,7 +97,7 @@ def check_pinned_actions(context: Context) -> list[Finding]:
             continue
         source = (context.repo / change.path).read_text(encoding="utf-8")
         for uses in _uses_values(yaml.safe_load(source)):
-            if uses.startswith(_LOCAL_PREFIXES) or _SHA_PIN.search(uses):
+            if uses.startswith(_LOCAL_PREFIXES) or PINNED_TO_COMMIT.search(uses):
                 continue
             findings.append(
                 Finding(
@@ -108,22 +112,35 @@ def check_pinned_actions(context: Context) -> list[Finding]:
     return findings
 
 
+def _pyproject_version(source: str) -> object:
+    project = tomllib.loads(source).get(Key.PROJECT, {})
+    return project.get(Key.VERSION) if isinstance(project, dict) else None
+
+
+def _package_json_version(source: str) -> object:
+    return json.loads(source).get(Key.VERSION)
+
+
+def _unity_version(source: str) -> object:
+    match = UNITY_BUNDLE_VERSION.search(source)
+    return match.group(1) if match else None
+
+
+# How to read the version, by the version file's name.
+VERSION_READERS: dict[str, Callable[[str], object]] = {
+    VersionFile.PYPROJECT: _pyproject_version,
+    VersionFile.PACKAGE_JSON: _package_json_version,
+    VersionFile.UNITY: _unity_version,
+}
+
+
 def read_version(path: Path) -> str | None:
     """The version written in a pyproject.toml, package.json or Unity
     ProjectSettings.asset, or None if it is not there."""
-    if not path.is_file():
+    reader = VERSION_READERS.get(path.name)
+    if reader is None or not path.is_file():
         return None
-    source = path.read_text(encoding="utf-8")
-    if path.name == VersionFile.PYPROJECT:
-        project = tomllib.loads(source).get(Key.PROJECT, {})
-        version = project.get(Key.VERSION) if isinstance(project, dict) else None
-    elif path.name == VersionFile.PACKAGE_JSON:
-        version = json.loads(source).get(Key.VERSION)
-    elif path.name == VersionFile.UNITY:
-        match = _UNITY_VERSION.search(source)
-        version = match.group(1) if match else None
-    else:
-        return None
+    version = reader(path.read_text(encoding="utf-8"))
     return version if isinstance(version, str) else None
 
 

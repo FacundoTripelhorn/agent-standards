@@ -38,8 +38,9 @@ requires the same checks:
 The shared checks from agent-standards run in a `standards` job that uses
 the agent-standards action, pinned by SHA, after a checkout with
 `fetch-depth: 0`. It checks `project.yml`, the PR title, file and function
-size, literal comparisons, duplicate constant values, suppressions, pinned
-actions, release tags and secrets (gitleaks). Findings appear on the lines
+size, suppressions, pinned actions, release tags and secrets (gitleaks).
+Coding practices that need judgement, such as names over literals, are not
+checked by CI; they are reviewed. Findings appear on the lines
 of the PR diff, each with the fix and the rule. It starts in `mode: warn`;
 the owner switches a repository to `mode: fail` once its warnings are
 understood. Secrets fail in either mode. Jobs that

@@ -86,13 +86,13 @@ def build_context(repo: Path, base_override: str | None) -> tuple[Context, list[
     if base and not has_commit(repo, base):
         notes.append(
             f"Base commit {base} is not in the checkout (use fetch-depth: 0); "
-            "the size, literal and suppression checks were skipped."
+            "the size and suppression checks were skipped."
         )
         base = None
     elif not base:
         notes.append(
             "No base commit to compare against; "
-            "the size, literal and suppression checks were skipped."
+            "the size and suppression checks were skipped."
         )
     changes = changed_files(repo, base) if base else []
     return Context(repo, event, base, changes), notes

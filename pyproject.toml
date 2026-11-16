@@ -35,12 +35,8 @@ src = ["src", "tests"]
 [tool.ruff.lint]
 select = ["E", "W", "F", "I", "B", "UP", "SIM", "C90", "PL", "RUF"]
 
-[tool.ruff.lint.pylint]
-# The default ignores strings; code.md asks for named constants for them too.
-allow-magic-value-types = []
-
 [tool.ruff.lint.per-file-ignores]
-# Test data is exempt from the literal rule (code.md, Names over literals).
+# Test data, not program values (code.md, Names over literals).
 "tests/**" = ["PLR2004"]
 
 [tool.mypy]

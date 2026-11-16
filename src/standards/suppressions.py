@@ -1,5 +1,6 @@
 """Count type and lint suppressions per file (code.md, Types). CI only
-lets the count go down."""
+lets the count go down. A suppression with an `allow-suppression: <why>`
+comment on its line, or the line above, is deliberate and not counted."""
 
 from __future__ import annotations
 
@@ -9,7 +10,7 @@ from enum import StrEnum
 
 from tree_sitter import Node
 
-from standards.constants import Language
+from standards.constants import ALLOW_SUPPRESSION_MARKER, Language
 from standards.node_types import Cs, CsToken, Py, SyntaxField, Ts, TsToken
 from standards.syntax import COMMENT_TYPES, field_text, parse, text, walk
 
@@ -30,22 +31,36 @@ class Suppression(StrEnum):
     CS_SUPPRESS_MESSAGE = "[SuppressMessage]"
 
 
+# `allow-suppression:` followed by a reason; the marker alone exempts nothing.
+ALLOWED_WITH_REASON = re.compile(rf"{re.escape(ALLOW_SUPPRESSION_MARKER)}\s*\S")
+
+# Suppressions written as comments, matched inside the comment text.
+# eslint-disable also matches its -line and -next-line forms.
+TYPE_IGNORE_COMMENT = re.compile(r"type:\s*ignore")
+NOQA_COMMENT = re.compile(r"\bnoqa\b")
+PYLINT_DISABLE_COMMENT = re.compile(r"pylint:\s*disable")
+TS_IGNORE_COMMENT = re.compile(r"@ts-ignore\b")
+TS_NOCHECK_COMMENT = re.compile(r"@ts-nocheck\b")
+TS_EXPECT_ERROR_COMMENT = re.compile(r"@ts-expect-error\b")
+ESLINT_DISABLE_COMMENT = re.compile(r"eslint-disable")
+
+_TS_COMMENT_PATTERNS = {
+    Suppression.TS_IGNORE: TS_IGNORE_COMMENT,
+    Suppression.TS_NOCHECK: TS_NOCHECK_COMMENT,
+    Suppression.TS_EXPECT_ERROR: TS_EXPECT_ERROR_COMMENT,
+    Suppression.ESLINT_DISABLE: ESLINT_DISABLE_COMMENT,
+}
 _COMMENT_PATTERNS: dict[Language, dict[Suppression, re.Pattern[str]]] = {
     Language.PYTHON: {
-        Suppression.PY_TYPE_IGNORE: re.compile(r"type:\s*ignore"),
-        Suppression.PY_NOQA: re.compile(r"\bnoqa\b"),
-        Suppression.PY_PYLINT: re.compile(r"pylint:\s*disable"),
+        Suppression.PY_TYPE_IGNORE: TYPE_IGNORE_COMMENT,
+        Suppression.PY_NOQA: NOQA_COMMENT,
+        Suppression.PY_PYLINT: PYLINT_DISABLE_COMMENT,
     },
-    Language.TYPESCRIPT: {
-        Suppression.TS_IGNORE: re.compile(r"@ts-ignore\b"),
-        Suppression.TS_NOCHECK: re.compile(r"@ts-nocheck\b"),
-        Suppression.TS_EXPECT_ERROR: re.compile(r"@ts-expect-error\b"),
-        Suppression.ESLINT_DISABLE: re.compile(r"eslint-disable"),
-    },
+    Language.TYPESCRIPT: _TS_COMMENT_PATTERNS,
+    Language.TSX: _TS_COMMENT_PATTERNS,
+    Language.JAVASCRIPT: _TS_COMMENT_PATTERNS,
     Language.CSHARP: {},
 }
-_COMMENT_PATTERNS[Language.TSX] = _COMMENT_PATTERNS[Language.TYPESCRIPT]
-_COMMENT_PATTERNS[Language.JAVASCRIPT] = _COMMENT_PATTERNS[Language.TYPESCRIPT]
 
 
 def _inside_import(node: Node) -> bool:
@@ -87,18 +102,32 @@ _NODE_SUPPRESSIONS = {
 }
 
 
+def _allowed_rows(root: Node) -> set[int]:
+    """Rows a reasoned `allow-suppression:` comment covers: its own rows and
+    the row after it."""
+    rows: set[int] = set()
+    for node in walk(root):
+        if node.type in COMMENT_TYPES and ALLOWED_WITH_REASON.search(text(node)):
+            rows.update(range(node.start_point[0], node.end_point[0] + 2))
+    return rows
+
+
+def _found(language: Language, node: Node) -> list[Suppression]:
+    if node.type in COMMENT_TYPES:
+        body = text(node)
+        patterns = _COMMENT_PATTERNS[language]
+        return [kind for kind, pattern in patterns.items() if pattern.search(body)]
+    found = _NODE_SUPPRESSIONS[language](node)
+    return [found] if found is not None else []
+
+
 def count_suppressions(language: Language, source: str) -> Counter[Suppression]:
-    """How many suppressions of each kind the file has."""
+    """How many suppressions of each kind the file has, leaving out the
+    ones marked as deliberate."""
+    root = parse(language, source)
+    allowed = _allowed_rows(root)
     counts: Counter[Suppression] = Counter()
-    patterns = _COMMENT_PATTERNS[language]
-    for node in walk(parse(language, source)):
-        if node.type in COMMENT_TYPES:
-            body = text(node)
-            counts.update(
-                kind for kind, pattern in patterns.items() if pattern.search(body)
-            )
-            continue
-        found = _NODE_SUPPRESSIONS[language](node)
-        if found is not None:
-            counts[found] += 1
+    for node in walk(root):
+        if node.start_point[0] not in allowed:
+            counts.update(_found(language, node))
     return counts

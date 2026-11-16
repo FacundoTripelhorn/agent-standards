@@ -13,6 +13,12 @@ from standards.constants import Check, Mode, Rule
 
 SUMMARY_ENV = "GITHUB_STEP_SUMMARY"
 
+# Workflow commands are one line: these characters are percent-encoded in the
+# message (GitHub "workflow commands", escaping data and properties).
+MESSAGE_ESCAPES = {"%": "%25", "\r": "%0D", "\n": "%0A"}
+# Property values (file=…,title=…) also escape the separators they use.
+PROPERTY_ESCAPES = {**MESSAGE_ESCAPES, ":": "%3A", ",": "%2C"}
+
 
 class Level(StrEnum):
     """GitHub workflow command for an annotation."""
@@ -35,12 +41,19 @@ class Finding:
     blocking: bool = True
 
 
+def _encode(text: str, escapes: dict[str, str]) -> str:
+    # "%" comes first in both tables, so it is never encoded twice.
+    for raw, encoded in escapes.items():
+        text = text.replace(raw, encoded)
+    return text
+
+
 def _escape(text: str) -> str:
-    return text.replace("%", "%25").replace("\r", "%0D").replace("\n", "%0A")
+    return _encode(text, MESSAGE_ESCAPES)
 
 
 def _escape_property(text: str) -> str:
-    return _escape(text).replace(":", "%3A").replace(",", "%2C")
+    return _encode(text, PROPERTY_ESCAPES)
 
 
 def level_for(finding: Finding, mode: Mode) -> Level:

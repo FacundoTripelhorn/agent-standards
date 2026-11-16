@@ -12,14 +12,16 @@ import yaml
 from standards.constants import PROJECT_FILE, Check, Rule
 from standards.findings import Finding
 
-_KEY = re.compile(r"^[A-Z][A-Z0-9]{1,9}$")
-_LANGUAGE = re.compile(r"^[a-z]{2,3}(-[A-Z]{2})?$")
+# 2 to 10 uppercase letters or digits, starting with a letter: FAC, GHOST.
+PROJECT_KEY = re.compile(r"^[A-Z][A-Z0-9]{1,9}$")
+# A language, optionally with a region: en, es-AR.
+LANGUAGE_TAG = re.compile(r"^[a-z]{2,3}(-[A-Z]{2})?$")
 
 
 class Field(StrEnum):
     """Keys of project.yml."""
 
-    KEY = "key"  # same-value: a project.yml field, not a syntax field
+    KEY = "key"
     LANGUAGE = "language"
     DOCS_LANGUAGE = "docs_language"
     TRACKER = "tracker"
@@ -94,11 +96,11 @@ def _field_problems(data: dict[str, object], repo: Path) -> list[str]:
             allowed = ", ".join(c.value for c in choices)
             problems.append(f"`{field.value}: {value}` must be one of {allowed}.")
     key = data.get(Field.KEY.value)
-    if key is not None and not _KEY.match(str(key)):
+    if key is not None and not PROJECT_KEY.match(str(key)):
         problems.append(f"`key: {key}` must be 2 to 10 uppercase letters or digits.")
     for lang in (Field.LANGUAGE, Field.DOCS_LANGUAGE):
         value = data.get(lang.value)
-        if value is not None and not _LANGUAGE.match(str(value)):
+        if value is not None and not LANGUAGE_TAG.match(str(value)):
             problems.append(f"`{lang.value}: {value}` must look like `en` or `es-AR`.")
     version_file = data.get(Field.VERSION_FILE.value)
     if version_file is not None and not (repo / str(version_file)).is_file():

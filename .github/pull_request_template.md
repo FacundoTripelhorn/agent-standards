@@ -25,7 +25,7 @@ not change. -->
 
 - [ ] No file or function grew past its limit (`docs/agent/rules/thresholds.md`), or the exception is listed in `size-exceptions.txt` with a reason
 - [ ] No new bare literals for values the code compares, stores or sends; they are constants or enums
-- [ ] No new `Any`, `@ts-nocheck`, `@ts-ignore` or warning suppressions
+- [ ] No new `Any`, `@ts-nocheck`, `@ts-ignore` or warning suppressions, except deliberate ones marked `allow-suppression: <why>`
 - [ ] No silently swallowed errors
 - [ ] User data is never deleted or overwritten when it cannot be read
 - [ ] Nothing from the request is shown to the user as a message or used as a redirect target

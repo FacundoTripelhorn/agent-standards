@@ -1,6 +1,5 @@
 """Parse source files with tree-sitter and answer small questions about
-the tree: which language a path is, which lines hold code, what a string
-literal's value is."""
+the tree: which language a path is, and which lines hold code."""
 
 from __future__ import annotations
 
@@ -23,7 +22,7 @@ from standards.constants import (
     TEST_PATH_PARTS,
     Language,
 )
-from standards.node_types import Common, Cs, Py, Ts
+from standards.node_types import Common
 
 _GRAMMARS = {
     Language.PYTHON: tree_sitter_python.language,
@@ -34,19 +33,6 @@ _GRAMMARS = {
 }
 
 COMMENT_TYPES = frozenset({Common.COMMENT})
-_INTERPOLATIONS = frozenset({Py.INTERPOLATION, Ts.TEMPLATE_SUBSTITUTION})
-_STRING_PARTS = frozenset(
-    {
-        Py.STRING_CONTENT,
-        Common.ESCAPE,
-        Ts.STRING_FRAGMENT,
-        Cs.STRING_CONTENT,
-        Cs.RAW_CONTENT,
-    }
-)
-STRING_TYPES = frozenset({Common.STRING, Ts.TEMPLATE, Cs.STRING, Cs.VERBATIM, Cs.RAW})
-_VERBATIM_PREFIX = '@"'
-_QUOTE = '"'
 
 
 def language_for(path: str) -> Language | None:
@@ -57,7 +43,7 @@ def language_for(path: str) -> Language | None:
 
 
 def is_test_path(path: str) -> bool:
-    """Test files hold test data, which the literal rules do not cover."""
+    """Whether a path is a test file (by folder or by name)."""
     pure = PurePosixPath(path)
     if any(part in TEST_PATH_PARTS for part in pure.parts[:-1]):
         return True
@@ -102,15 +88,6 @@ def code_rows(root: Node) -> set[int]:
         if node.child_count == 0 and node.end_byte > node.start_byte:
             rows.update(range(node.start_point[0], node.end_point[0] + 1))
     return rows
-
-
-def string_value(node: Node) -> str | None:
-    """A string literal's value, or None when it is built at run time."""
-    if any(child.type in _INTERPOLATIONS for child in node.children):
-        return None
-    if node.type == Cs.VERBATIM:
-        return text(node).removeprefix(_VERBATIM_PREFIX).removesuffix(_QUOTE)
-    return "".join(text(c) for c in node.children if c.type in _STRING_PARTS)
 
 
 def field_text(node: Node, name: str) -> str | None:

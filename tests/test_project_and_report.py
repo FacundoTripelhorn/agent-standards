@@ -40,12 +40,14 @@ def test_missing_project_file(tmp_path: Path) -> None:
     assert project is None and "missing" in finding.message
 
 
-FINDING = Finding(Check.LITERAL, "Bad, really: 100%.", "Fix it.", Rule.CODE, "a.py", 3)
+FINDING = Finding(
+    Check.SUPPRESSION, "Bad, really: 100%.", "Fix it.", Rule.CODE, "a.py", 3
+)
 
 
 def test_annotation_escapes_and_locates() -> None:
     line = annotation(FINDING, Mode.WARN)
-    assert line.startswith("::warning file=a.py,line=3,title=Literal comparison::")
+    assert line.startswith("::warning file=a.py,line=3,title=Suppressions::")
     assert "100%25" in line
 
 
@@ -56,7 +58,7 @@ def test_warn_mode_never_fails_and_fail_mode_does(
     monkeypatch.setenv("GITHUB_STEP_SUMMARY", str(summary))
     assert report([FINDING], Mode.WARN, []) == 0
     assert report([FINDING], Mode.FAIL, []) == 1
-    assert "| Literal comparison | 1 |" in summary.read_text(encoding="utf-8")
+    assert "| Suppressions | 1 |" in summary.read_text(encoding="utf-8")
 
 
 def test_non_blocking_findings_never_fail() -> None:

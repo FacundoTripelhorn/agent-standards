@@ -9,7 +9,8 @@ from enum import StrEnum
 RULES_DIR = "docs/agent/rules"
 PROJECT_FILE = "project.yml"
 SIZE_EXCEPTIONS_FILE = "size-exceptions.txt"
-SAME_VALUE_MARKER = "same-value:"
+# A comment with this and a reason exempts the suppression on its line (code.md).
+ALLOW_SUPPRESSION_MARKER = "allow-suppression:"
 COMMENT_PREFIX = "#"
 NULL_SHA = "0" * 40
 TAG_REF_PREFIX = "refs/tags/v"
@@ -29,8 +30,6 @@ class Check(StrEnum):
     PR_TITLE = "PR title"
     FILE_SIZE = "File size"
     FUNCTION_SIZE = "Function size"
-    LITERAL = "Literal comparison"
-    DUPLICATE_VALUE = "Duplicate constant value"
     SUPPRESSION = "Suppressions"
     PINNED_ACTION = "Pinned actions"
     RELEASE_TAG = "Release tag"
@@ -108,6 +107,6 @@ LIMITS: dict[Language, Limits] = {
     Language.CSHARP: Limits(Limit(1000, Unit.CODE_LINES), Limit(80, Unit.CODE_LINES)),
 }
 
-# Paths whose literals are test data, not program values (code.md).
+# Test files: function size is not checked there (thresholds.md).
 TEST_PATH_PARTS = ("tests", "test", "__tests__", "Tests")
 TEST_NAME_PATTERNS = ("test_*.py", "*_test.py", "*.test.*", "*.spec.*", "*Tests.cs")

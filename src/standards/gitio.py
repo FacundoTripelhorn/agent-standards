@@ -9,7 +9,9 @@ from dataclasses import dataclass, field
 from enum import StrEnum
 from pathlib import Path
 
-_HUNK = re.compile(r"^@@ -\d+(?:,\d+)? \+(\d+)(?:,(\d+))? @@")
+# A unified-diff hunk header, e.g. "@@ -10,2 +12,3 @@": group 1 is the first
+# new line, group 2 the number of new lines (1 when left out).
+DIFF_HUNK_HEADER = re.compile(r"^@@ -\d+(?:,\d+)? \+(\d+)(?:,(\d+))? @@")
 
 
 class Status(StrEnum):
@@ -68,7 +70,7 @@ def added_lines(repo: Path, base: str, path: str) -> frozenset[int]:
     diff = git(repo, "diff", "-U0", "-M", base, "HEAD", "--", path)
     lines: set[int] = set()
     for line in diff.splitlines():
-        match = _HUNK.match(line)
+        match = DIFF_HUNK_HEADER.match(line)
         if match:
             start = int(match.group(1))
             count = int(match.group(2) or "1")

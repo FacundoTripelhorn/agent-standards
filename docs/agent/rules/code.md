@@ -43,40 +43,35 @@ that name everywhere. How many times it appears today does not matter.
 - **One value, one name.** Two constants with the same value are only
   allowed when they are genuinely different concepts that happen to coincide
   (and then say so in a comment). Renaming, splitting or re-declaring a value
-  to dodge a duplicate check is the same violation.
+  so it looks different is the same violation.
 - **Related values live together** in one enum or constants module per
   domain, not scattered as module-level strings.
 - Use the language's own facility: `StrEnum` or `HTTPStatus` in Python,
   `as const` objects or union types in TypeScript, `enum` or `const` in C#.
 - **Not covered:** user-facing copy (it belongs to the i18n or copy layer of
-  the project), log message text, test data, docstrings, and language idioms
-  (`__name__ == "__main__"`, `0`, `1`, the empty string).
-- **Two constants with the same value** on purpose (different concepts)
-  carry a `same-value: <why>` comment on the line, or the line above, so
-  the duplicate check and the reviewer can see it was deliberate.
-- **Exempt idioms:** `__name__ == "__main__"`, `typeof x === "string"`, and
-  platform checks (`sys.platform`, `os.name`, `process.platform`), which
-  type checkers only narrow when written with the literal.
-- CI enforces this two ways, both as a ratchet (only new cases are
-  reported):
-  - Linters flag comparisons against literals: ruff `PLR2004` with
-    `allow-magic-value-types = []` in Python (its default ignores strings),
-    and an ESLint `no-restricted-syntax` rule in TypeScript.
-  - The shared check, for Python, TypeScript, JavaScript and C#, flags new
-    comparisons and `switch`/`case`/`match` labels on string literals, and
-    new constants whose value another constant already has. Test files are
-    exempt.
+  the project), log message text, test data, docstrings, and language idioms:
+  `__name__ == "__main__"`, `typeof x === "string"`, `0`, `1`, the empty
+  string, and platform checks (`sys.platform`, `os.name`,
+  `process.platform`), which type checkers only narrow when written with the
+  literal.
+- This is a practice for whoever writes the code, checked in review. CI does
+  not enforce it.
 
 ## Types
 
-- New code is fully typed. No new `Any` without a comment that says why, no
-  new `@ts-nocheck` or `@ts-ignore`, no new `#pragma warning disable`.
+- New code is fully typed. No new `Any`, `@ts-nocheck`, `@ts-ignore` or
+  `#pragma warning disable` unless it is deliberate and says why (below).
 - Data that crosses a layer (database row to template, API response to
   domain) gets a typed model rather than a raw dict or row.
 - The number of existing suppressions in a file may only go down. CI counts
   `Any`, `# type: ignore`, `# noqa`, `# pylint: disable`, `any`,
   `@ts-ignore`, `@ts-nocheck`, `@ts-expect-error`, `eslint-disable`,
   `#pragma warning disable` and `[SuppressMessage]`.
+- A deliberate suppression carries a reason, in a comment on its line or on
+  the line above: `allow-suppression: <why>`. For example
+  `def load(raw: str) -> Any:  # allow-suppression: plugin payloads are untyped`.
+  CI does not count it; the reviewer judges the reason. The marker without a
+  reason exempts nothing.
 
 ## Errors
 
