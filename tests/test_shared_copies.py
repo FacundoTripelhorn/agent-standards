@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import shutil
+
 import pytest
 
 from conftest import Repo
@@ -15,6 +17,7 @@ from standards.shared import (
     copied_files,
     shared_root,
 )
+from standards.sync import EXIT_UNSAFE_PATH
 from standards.sync import main as sync
 
 PROJECT_PART = "# My project\n\nProject rules.\n"
@@ -97,3 +100,24 @@ def test_fix_names_the_pinned_commit(repo: Repo) -> None:
     project, _ = load_project(repo.root)
     [first] = check_shared_copies(repo.root, project)
     assert f"agent-standards@{PIN} standards-sync" in first.fix
+
+
+@pytest.mark.parametrize("link", [".github/pull_request_template.md", "docs/agent"])
+def test_sync_refuses_a_destination_that_resolves_outside_the_repository(
+    repo: Repo, tmp_path_factory: pytest.TempPathFactory, link: str
+) -> None:
+    outside = tmp_path_factory.mktemp("outside")
+    victim = outside / "victim.md"
+    victim.write_text("keep me\n")
+    target = victim if link.endswith(".md") else outside
+    path = repo.root / link
+    if path.is_dir():
+        shutil.rmtree(path)
+    else:
+        path.unlink()
+    path.symlink_to(target)
+    (repo.root / AGENTS_FILE).unlink()
+    assert sync(["--repo", str(repo.root)]) == EXIT_UNSAFE_PATH
+    assert victim.read_text() == "keep me\n"
+    assert sorted(p.name for p in outside.iterdir()) == ["victim.md"]
+    assert not (repo.root / AGENTS_FILE).exists()

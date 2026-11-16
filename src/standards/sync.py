@@ -10,6 +10,7 @@ block in `AGENTS.md`. With `--check` it only reports what would change.
 from __future__ import annotations
 
 import argparse
+import sys
 from pathlib import Path
 
 from standards.shared import (
@@ -23,6 +24,9 @@ from standards.shared import (
 )
 
 _ORIGIN_NOTE = "This is agent-standards: it holds the originals, nothing to sync."
+EXIT_OK = 0
+EXIT_CHANGES = 1
+EXIT_UNSAFE_PATH = 2
 
 
 def planned_writes(repo: Path) -> dict[str, str]:
@@ -40,6 +44,12 @@ def planned_writes(repo: Path) -> dict[str, str]:
     return writes
 
 
+def outside_repo(repo: Path, names: list[str]) -> list[str]:
+    """Paths that resolve outside the repository, through a symlink in the
+    file itself or in one of its parent folders. `repo` must be resolved."""
+    return [name for name in names if not (repo / name).resolve().is_relative_to(repo)]
+
+
 def main(argv: list[str] | None = None) -> int:
     """Command line entry point; returns the exit code."""
     parser = argparse.ArgumentParser(
@@ -54,8 +64,13 @@ def main(argv: list[str] | None = None) -> int:
     repo = args.repo.resolve()
     if is_origin(repo):
         print(_ORIGIN_NOTE)
-        return 0
+        return EXIT_OK
     writes = planned_writes(repo)
+    unsafe = outside_repo(repo, list(writes))
+    for name in unsafe:
+        print(f"refusing to write {name}: it resolves outside {repo}", file=sys.stderr)
+    if unsafe:
+        return EXIT_UNSAFE_PATH
     for name, text in writes.items():
         if args.check:
             print(f"would update {name}")
@@ -66,4 +81,4 @@ def main(argv: list[str] | None = None) -> int:
         print(f"updated {name}")
     if not writes:
         print("The shared files are up to date.")
-    return 1 if args.check and writes else 0
+    return EXIT_CHANGES if args.check and writes else EXIT_OK
