@@ -1,6 +1,6 @@
 [project]
 name = "agent-standards-checks"
-version = "0.7.0"
+version = "0.8.0"
 description = "Shared CI checks for the owner's repositories: project.yml, PR title, size and literal ratchets, suppressions, pinned actions, release tags."
 requires-python = ">=3.12"
 dependencies = [

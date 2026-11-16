@@ -1,6 +1,6 @@
 # Dependencies
 
-<!-- agent-standards v0.7 — synced from agent-standards. Edit it there, not here. -->
+<!-- agent-standards v0.8 — synced from agent-standards. Edit it there, not here. -->
 
 Read before adding, removing or upgrading a dependency. Adding or removing
 one needs the owner's approval first (shared rules, "Ask the owner first").
