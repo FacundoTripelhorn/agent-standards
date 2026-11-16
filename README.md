@@ -68,7 +68,7 @@ One PR per repository, for its own issue (`<KEY>-<n> Adopt the shared rules`):
    SHA of this repository.
 6. `.github/dependabot.yml`, `.gitattributes`, and the issue template. Where
    the repository already has one of these files, add the template's lines
-   to it; never replace it (an existing `.gitattributes` may hold line-ending
+   to it; never replace it (an existing `.gitattributes` may hold
    rules the build depends on).
 7. Documents outside the list in `docs/agent/rules/docs.md`: fold what is
    still true into the standard ones, and list the rest under "Other
