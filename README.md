@@ -17,7 +17,9 @@ itself (`project.yml`), the issue and PR templates, and the size thresholds.
 | `templates/docs/agent/` | Starting points for the three agent docs every repository has. |
 | `templates/docs/design.md` | Headings for the optional design document. |
 | `templates/just/` | `justfile` starting points for Python (uv), TypeScript (pnpm/npm) and Unity. |
-| `templates/.github/` | `ci.yml` with the `check`, `test` and `build` jobs, and `dependabot.yml`. |
+| `templates/.github/` | `ci.yml` with the `standards`, `check`, `test` and `build` jobs, and `dependabot.yml`. |
+| `templates/.gitattributes` | Marks lockfiles as generated. |
+| `action.yml`, `src/standards/` | The shared CI check every repository's `standards` job runs (`docs/agent/rules/ci.md`). |
 
 ## Projects
 
@@ -28,6 +30,7 @@ itself (`project.yml`), the issue and PR templates, and the size thresholds.
 | DeskPet | `DPET` | GitHub | en | en | main | active |
 | GhostMCP | `GHOST` | GitHub | en | en | main | active |
 | GroceryAgent | `GA` | Linear | en | en | master | paused |
+| agent-standards | `AST` | GitHub | en | en | main | active |
 
 Each project numbers its own issues: `FAC` and `GA` in Linear, the others in
 GitHub Issues of their repository.
@@ -43,3 +46,17 @@ GitHub Issues of their repository.
   (`winget install Casey.Just`, `brew install just`, or `pip install rust-just`).
 - Versions are SemVer, written only in `version_file`; the owner tags
   releases `v<version>`. No changelog file.
+
+## The shared check
+
+Each repository's `standards` job runs this repository as an action, pinned
+by commit SHA, so a change here reaches a repository only when it updates
+the pin. To run it locally against another repository:
+
+```
+just run ../GhostMCP origin/main
+```
+
+Working on the check itself: `just check` and `just test` (needs
+[uv](https://docs.astral.sh/uv/)).
+

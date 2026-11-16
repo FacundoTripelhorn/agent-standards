@@ -1,6 +1,6 @@
 # Code rules
 
-<!-- agent-standards v0.6 — synced from agent-standards. Edit it there, not here. -->
+<!-- agent-standards v0.7 — synced from agent-standards. Edit it there, not here. -->
 
 Read before writing or changing code.
 
@@ -43,30 +43,35 @@ that name everywhere. How many times it appears today does not matter.
 - **One value, one name.** Two constants with the same value are only
   allowed when they are genuinely different concepts that happen to coincide
   (and then say so in a comment). Renaming, splitting or re-declaring a value
-  to dodge a duplicate check is the same violation.
+  so it looks different is the same violation.
 - **Related values live together** in one enum or constants module per
   domain, not scattered as module-level strings.
 - Use the language's own facility: `StrEnum` or `HTTPStatus` in Python,
   `as const` objects or union types in TypeScript, `enum` or `const` in C#.
 - **Not covered:** user-facing copy (it belongs to the i18n or copy layer of
-  the project), log message text, test data, docstrings, and language idioms
-  (`__name__ == "__main__"`, `0`, `1`, the empty string).
-- CI enforces this two ways, both with the ratchet (existing cases are
-  listed, new ones fail):
-  - Linters flag comparisons against literals: ruff `PLR2004` with
-    `allow-magic-value-types = []` in Python (its default ignores strings),
-    and an ESLint `no-restricted-syntax` rule in TypeScript.
-  - The shared literal check, for every language including C#, flags the same
-    string literal in two places, a comparison or `switch` case on a string
-    literal, and two constants defined with the same value.
+  the project), log message text, test data, docstrings, and language idioms:
+  `__name__ == "__main__"`, `typeof x === "string"`, `0`, `1`, the empty
+  string, and platform checks (`sys.platform`, `os.name`,
+  `process.platform`), which type checkers only narrow when written with the
+  literal.
+- This is a practice for whoever writes the code, checked in review. CI does
+  not enforce it.
 
 ## Types
 
-- New code is fully typed. No new `Any` without a comment that says why, no
-  new `@ts-nocheck` or `@ts-ignore`, no new `#pragma warning disable`.
+- New code is fully typed. No new `Any`, `@ts-nocheck`, `@ts-ignore` or
+  `#pragma warning disable` unless it is deliberate and says why (below).
 - Data that crosses a layer (database row to template, API response to
   domain) gets a typed model rather than a raw dict or row.
-- The number of existing suppressions may only go down (CI counts them).
+- The number of existing suppressions in a file may only go down. CI counts
+  `Any`, `# type: ignore`, `# noqa`, `# pylint: disable`, `any`,
+  `@ts-ignore`, `@ts-nocheck`, `@ts-expect-error`, `eslint-disable`,
+  `#pragma warning disable` and `[SuppressMessage]`.
+- A deliberate suppression carries a reason, in a comment on its line or on
+  the line above: `allow-suppression: <why>`. For example
+  `def load(raw: str) -> Any:  # allow-suppression: plugin payloads are untyped`.
+  CI does not count it; the reviewer judges the reason. The marker without a
+  reason exempts nothing.
 
 ## Errors
 

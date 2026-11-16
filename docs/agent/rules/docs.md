@@ -1,6 +1,6 @@
 # Documentation
 
-<!-- agent-standards v0.6 — synced from agent-standards. Edit it there, not here. -->
+<!-- agent-standards v0.7 — synced from agent-standards. Edit it there, not here. -->
 
 Read before creating, moving or editing any document.
 

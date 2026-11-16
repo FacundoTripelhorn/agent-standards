@@ -1,0 +1,6 @@
+# Lockfiles are generated: GitHub collapses them in PR diffs.
+# Keep the lines for the lockfiles this repository has.
+uv.lock linguist-generated=true
+pnpm-lock.yaml linguist-generated=true
+package-lock.json linguist-generated=true
+Packages/packages-lock.json linguist-generated=true

@@ -1,6 +1,6 @@
 # Dependencies
 
-<!-- agent-standards v0.6 — synced from agent-standards. Edit it there, not here. -->
+<!-- agent-standards v0.7 — synced from agent-standards. Edit it there, not here. -->
 
 Read before adding, removing or upgrading a dependency. Adding or removing
 one needs the owner's approval first (shared rules, "Ask the owner first").
@@ -20,6 +20,10 @@ one needs the owner's approval first (shared rules, "Ask the owner first").
   | npm | `npm ci` |
   | unity | `Packages/packages-lock.json`, resolved by the editor |
 
+- Never resolve a lockfile merge conflict by hand: take either side, then
+  regenerate it (`uv lock`, `pnpm install`, `npm install`).
+- Lockfiles are marked generated in `.gitattributes`
+  (`templates/.gitattributes`), so GitHub collapses them in PR diffs.
 - A PR that changes the lockfile says why. A lockfile change with no
   matching manifest change is a mistake unless the PR is an upgrade.
 

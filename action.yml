@@ -1,0 +1,58 @@
+# The shared checks every repository runs in its `standards` job
+# (docs/agent/rules/ci.md). Pin it by commit SHA like any other action:
+#   - uses: FacundoTripelhorn/agent-standards@<sha>  # vX.Y.Z
+# The checkout before it needs `fetch-depth: 0`, so the base commit is there.
+name: agent-standards checks
+description: project.yml, PR title, size and literal ratchets, suppressions, pinned actions, release tags and secrets.
+
+inputs:
+  mode:
+    description: "warn: report findings as warnings. fail: report them as errors and fail the job."
+    default: warn
+  secrets-mode:
+    description: "fail (default) or warn, for secrets found by gitleaks. A leaked secret is not debt to ratchet."
+    default: fail
+  base:
+    description: "Commit to compare against. Default: the PR base, or the commit before a push."
+    default: ""
+
+runs:
+  using: composite
+  steps:
+    - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2  # v10.3.3
+
+    - name: Code and repository checks
+      shell: bash
+      env:
+        MODE: ${{ inputs.mode }}
+        BASE: ${{ inputs.base }}
+        ACTION_PATH: ${{ github.action_path }}
+        UV_PROJECT_ENVIRONMENT: ${{ runner.temp }}/agent-standards-venv
+      run: |
+        args=(--repo "$GITHUB_WORKSPACE" --mode "$MODE")
+        if [ -n "$BASE" ]; then args+=(--base "$BASE"); fi
+        uv run --locked --no-dev --project "$ACTION_PATH" python -m standards "${args[@]}"
+
+    - name: Install gitleaks
+      shell: bash
+      run: |
+        archive="$RUNNER_TEMP/gitleaks.tar.gz"
+        curl -fsSL "https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_linux_x64.tar.gz" -o "$archive"
+        echo "551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb  $archive" | sha256sum -c -
+        tar -xzf "$archive" -C "$RUNNER_TEMP" gitleaks
+
+    - name: Secrets (gitleaks, whole history)
+      shell: bash
+      env:
+        SECRETS_MODE: ${{ inputs.secrets-mode }}
+      run: |
+        case "$SECRETS_MODE" in fail|warn) ;; *) echo "::error::secrets-mode must be fail or warn"; exit 1 ;; esac
+        # A .gitleaks.toml at the repository root is picked up automatically.
+        if "$RUNNER_TEMP/gitleaks" git --no-banner --redact --verbose "$GITHUB_WORKSPACE"; then
+          exit 0
+        fi
+        if [ "$SECRETS_MODE" = fail ]; then
+          echo "::error title=Secrets::gitleaks found possible secrets (see the log). Rotate any real secret, then remove it; list reviewed false positives in .gitleaks.toml."
+          exit 1
+        fi
+        echo "::warning title=Secrets::gitleaks found possible secrets (see the log)."
