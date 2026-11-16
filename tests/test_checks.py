@@ -123,7 +123,7 @@ def test_pr_title(repo: Repo, event: Callable[..., None]) -> None:
     event({"pull_request": {"title": "Fix things", "base": {"sha": base}}})
     [finding] = of(collect(repo.root, None)[0], Check.PR_TITLE)
     assert "GHOST-<number>" in finding.message
-    event({"pull_request": {"title": "GHOST-47 Compare armour", "base": {"sha": base}}})
+    event({"pull_request": {"title": "GHOST-12 Example title", "base": {"sha": base}}})
     assert of(collect(repo.root, None)[0], Check.PR_TITLE) == []
 
 

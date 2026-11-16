@@ -41,6 +41,8 @@ them.
 - **Docs follow the code.** If behaviour, setup or an interface changes,
   update the one doc that owns that fact in the same PR. When a doc and the
   code disagree, the code is right: fix the doc.
+- **No issue or PR references** to this project's tracker (`code.md`,
+  Issue references).
 - **No dates or versions as current truth** in prose ("as of v0.3 we…").
   State what is true now; history lives in git and the issues.
 - **Keep them short.** Prefer a table or a list over paragraphs. Delete what

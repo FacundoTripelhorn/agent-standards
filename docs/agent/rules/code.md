@@ -91,6 +91,21 @@ that name everywhere. How many times it appears today does not matter.
   is either generated from one source or covered by a parity test that runs
   in CI whenever any of the copies changes.
 
+## Issue references
+
+- Code, comments, tests, templates and docs never reference this project's
+  own issues or PRs: no issue IDs (`KEY-12`), no links to the tracker or to
+  this repository's issues and PRs, no "PR #<n>" or "issue #<n>".
+- Why: they go stale, cause merge conflicts, and teach agents to preserve
+  history instead of describing what the code does now. The PR description
+  and the commit link each change to its issue; `git log` and `git blame`
+  find them.
+- Say what the code does and why. "Retry once: the service drops the first
+  call after idle" belongs in a comment; "fix for KEY-12" does not.
+- Citing another project's issue as an external source (an upstream bug, a
+  library's changelog) is fine.
+- Examples of the ID format use the made-up key `KEY`, never a real one.
+
 ## Tests
 
 - Every behaviour change comes with tests. Every bug fix comes with a test

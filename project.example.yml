@@ -1,7 +1,8 @@
 # project.yml — one per repository, at the root. Read by agents (AGENTS.md),
 # by the shared workflows and by the portfolio review.
 
-# Short uppercase key. Issue IDs, branch names and PR titles use it: FAC-104.
+# Short uppercase key. Issue IDs, branch names and PR titles use it (FAC gives
+# FAC-<number>).
 # With tracker: linear it is the Linear team key.
 key: FAC
 
