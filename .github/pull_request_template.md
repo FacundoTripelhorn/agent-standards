@@ -1,6 +1,6 @@
-<!-- Title: "<KEY>-<number> <issue title>", e.g. "GHOST-47 Compare two armour instances".
+<!-- Title: "<KEY>-<number> <issue title>", e.g. "KEY-12 Export invoices as CSV".
 It becomes the one-line commit on the default branch (squash merge).
-Closing line: "Closes #47" for a GitHub issue, "Closes FAC-104" for a Linear issue. -->
+Closing line: "Closes #<number>" for a GitHub issue, "Closes KEY-12" for a Linear issue. -->
 
 Closes 
 

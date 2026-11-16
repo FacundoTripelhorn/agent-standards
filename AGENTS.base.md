@@ -57,6 +57,9 @@ says so. Report that check as "not run", never as passed.
   `allow-suppression: <why>` in a comment on that line.
 - Handle every error or let it propagate. Never catch an error and do
   nothing with it.
+- Never reference this project's issues or PRs in code, comments, tests or
+  docs: no IDs, tracker links or "PR #<n>". The commit history already links
+  each change to its issue.
 - Each piece of logic lives in one place. If two languages share a data
   format, generate one side from the other, or add a test that checks
   they still match.
@@ -77,10 +80,10 @@ says so. Report that check as "not run", never as passed.
 
 ### Branches, commits and PRs
 
-- Branch name is the issue ID: `GHOST-47`. Use `claude/GHOST-47` only when
-  the platform requires a prefix.
-- PR title is the ID plus the issue title: `GHOST-47 Compare two armour
-  instances`. It becomes the single squash commit.
+- Branch name is the issue ID: `KEY-12` (`KEY` is the project key). Use
+  `claude/KEY-12` only when the platform requires a prefix.
+- PR title is the ID plus the issue title: `KEY-12 Export invoices as CSV`.
+  It becomes the single squash commit.
 - In the PR, list every check you ran with its real result. Write "not run"
   and the reason for any check you skipped.
 - When code changes a fact that a doc states, update that doc in the same

@@ -11,19 +11,20 @@ or making a release.
   the issue template: Goal, Invariants, In scope, Out of scope, Done when,
   Verification.
 - Each project numbers its own issues. The issue ID is `<key>-<number>`:
-  - `tracker: linear`: the Linear issue ID as Linear shows it (`FAC-104`);
+  - `tracker: linear`: the Linear issue ID as Linear shows it (`KEY-12`);
     the Linear team key is the project key.
   - `tracker: github`: the project key plus the GitHub issue number of that
-    repository (`GHOST-47` is issue #47 of GhostMCP).
-- **Branch name:** exactly the issue ID, nothing else: `GHOST-47`. If a
+    repository (`KEY-12` is that repository's GitHub issue number 12).
+  The examples in these rules use the made-up key `KEY`.
+- **Branch name:** exactly the issue ID, nothing else: `KEY-12`. If a
   platform requires its own prefix, keep the prefix and put only the ID
-  after it: `claude/GHOST-47`, `codex/GHOST-47`, `cursor/GHOST-47`.
+  after it: `claude/KEY-12`, `codex/KEY-12`, `cursor/KEY-12`.
 - **PR title:** `<ID> <issue title>`, for example
-  `FAC-104 Backups por máquina`. It becomes the commit on the default branch.
+  `KEY-12 Export invoices as CSV`. It becomes the commit on the default branch.
 - **Commits:** one line, `<ID> <issue title>`, no body. PRs are merged with
   squash, so the default branch gets exactly one one-line commit per issue.
-- **Closing the issue:** the PR body says `Closes #47` for GitHub issues, or
-  `Closes FAC-104` for Linear issues (Linear also links the PR by the ID in
+- **Closing the issue:** the PR body says `Closes #<number>` for GitHub
+  issues, or `Closes KEY-12` for Linear issues (Linear also links the PR by the ID in
   the branch name).
 - The default branch is whatever the repository uses (`main` or `master`).
   Scripts and workflows read it from the repository; never hard-code it.

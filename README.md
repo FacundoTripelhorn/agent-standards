@@ -37,8 +37,8 @@ GitHub Issues of their repository.
 
 ## Conventions in one line each
 
-- Branch: the issue ID (`GHOST-47`), or `<platform>/<ID>` when an agent
-  platform needs its prefix (`claude/GHOST-47`).
+- Branch: the issue ID (`KEY-12`), or `<platform>/<ID>` when an agent
+  platform needs its prefix (`claude/KEY-12`).
 - PR title and the one commit that lands: `<ID> <issue title>`.
 - Squash merge only; the squash commit uses the PR title, with no body.
 - Every repository runs `just check`, `just fix`, `just test` and `just build`,
