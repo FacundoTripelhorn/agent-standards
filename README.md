@@ -47,6 +47,31 @@ GitHub Issues of their repository.
 - Versions are SemVer, written only in `version_file`; the owner tags
   releases `v<version>`. No changelog file.
 
+## Adopting in a repository
+
+One PR per repository, for its own issue (`<KEY>-<n> Adopt the shared rules`):
+
+1. `project.yml` from `project.example.yml`.
+2. `AGENTS.md`: the project part from `templates/AGENTS.md`, then the block
+   from `AGENTS.base.md`, markers included. With Claude Code, a `CLAUDE.md`
+   containing `@AGENTS.md`.
+3. `docs/agent/rules/` copied from here.
+4. `docs/agent/repo-map.md`, `verification-matrix.md` and `known-non-bugs.md`
+   from `templates/docs/agent/`, filled in for the repository.
+5. A `justfile` from `templates/just/` and CI from
+   `templates/.github/workflows/ci.yml`, with the action pinned to a commit
+   SHA of this repository.
+6. `.github/dependabot.yml`, `.gitattributes`, and the PR and issue templates.
+7. Documents outside the list in `docs/agent/rules/docs.md`: fold what is
+   still true into the standard ones, and list the rest under "Other
+   documents" in `AGENTS.md` or remove them, with the owner's approval.
+8. Settings, done by the owner: squash merge only with the PR title as the
+   commit, and `standards`, `check`, `test` and `build` as required checks.
+
+The block in `AGENTS.md` and `docs/agent/rules/` are copies: when they change
+here, the repository copies them again in a PR. agent-standards itself skips
+steps 2 and 3, because it holds the originals.
+
 ## The shared check
 
 Each repository's `standards` job runs this repository as an action, pinned

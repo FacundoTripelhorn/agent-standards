@@ -1,0 +1,22 @@
+# Dependency upgrades: weekly, minor and patch grouped into one PR per
+# ecosystem (docs/agent/rules/dependencies.md).
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    groups:
+      actions:
+        patterns: ["*"]
+        # Majors stay out of the group: each is its own PR (dependencies.md).
+        update-types: ["minor", "patch"]
+
+  - package-ecosystem: "uv"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    groups:
+      minor-patch:
+        update-types: ["minor", "patch"]
+    open-pull-requests-limit: 5
