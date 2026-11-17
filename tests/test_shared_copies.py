@@ -118,13 +118,10 @@ def test_fix_names_the_pinned_commit(repo: Repo) -> None:
     [
         "<!-- agent-standards:base v0.1 -->\n",
         "<!-- /agent-standards:base -->\n",
-        ("<!-- agent-standards:base v0.1 -->\n"
-         "<!-- /agent-standards:base -->\n") * 2,
+        ("<!-- agent-standards:base v0.1 -->\n<!-- /agent-standards:base -->\n") * 2,
     ],
 )
-def test_invalid_blocks_refuse_to_sync_without_writing(
-    repo: Repo, broken: str
-) -> None:
+def test_invalid_blocks_refuse_to_sync_without_writing(repo: Repo, broken: str) -> None:
     repo.write(AGENTS_FILE, PROJECT_PART + broken)
     path = repo.root / "docs/agent/rules/code.md"
     path.write_text("edited\n")
