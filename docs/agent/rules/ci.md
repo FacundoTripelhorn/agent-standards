@@ -35,6 +35,11 @@ requires the same checks:
 | `test` | Toolchain setup, then `just test` |
 | `build` | Toolchain setup, then `just build` |
 
+Each of these jobs installs `just` with
+`FacundoTripelhorn/agent-standards/setup-just`, pinned to the same commit as
+the `standards` job. It installs a pinned `just` release checked against its
+sha256, so no third-party action is needed for it.
+
 The shared checks from agent-standards run in a `standards` job that uses
 the agent-standards action, pinned by SHA, after a checkout with
 `fetch-depth: 0`. It checks `project.yml`, the PR title, file and function

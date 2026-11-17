@@ -1,0 +1,20 @@
+# Installs `just` for the check, test and build jobs (docs/agent/rules/ci.md):
+# one pinned release, verified against its sha256 before it is installed.
+# Linux x64 runners only. Pin it by commit SHA like any other action:
+#   - uses: FacundoTripelhorn/agent-standards/setup-just@<sha>  # vX.Y.Z
+# To move to a new just release, change both values below together: the
+# checksum is the release's own SHA256SUMS line for the Linux x64 archive.
+name: Set up just
+description: Install a pinned just release, verified by sha256 (Linux x64 runners).
+
+runs:
+  using: composite
+  steps:
+    - name: Install just
+      shell: bash
+      env:
+        JUST_VERSION: "1.59.0"
+        JUST_SHA256: 409044617b6f06517c1035e55ca38c8c856ff8b650e41bc2aa1ef82d5903a23e
+      run: |
+        url="https://github.com/casey/just/releases/download/${JUST_VERSION}/just-${JUST_VERSION}-x86_64-unknown-linux-musl.tar.gz"
+        "$GITHUB_ACTION_PATH/install.sh" "$url" "$JUST_SHA256" "$RUNNER_TEMP/just"

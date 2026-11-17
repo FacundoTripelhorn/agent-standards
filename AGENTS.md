@@ -26,7 +26,7 @@ shared rules. This project also has:
   Imports only go in the direction of the arrows.
 - **External systems:** git (through `gitio` only), the GitHub event file
   and step summary (through `context` and `findings`), gitleaks (in
-  `action.yml` only).
+  `action.yml` only), the `just` release download (in `setup-just/` only).
 - **Invariants:**
   - Existing debt never blocks: size and suppressions are compared with the
     base commit, and only growth is reported.
