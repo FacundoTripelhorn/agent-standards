@@ -50,4 +50,4 @@ there are none. -->
 |---|---|
 | | |
 
-<!-- agent-standards:base — the shared block is inserted here by the sync. -->
+<!-- standards-sync appends the shared rules block below this line. -->

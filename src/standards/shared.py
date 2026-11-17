@@ -38,13 +38,37 @@ def shared_root() -> Path:
 
 
 def package_version() -> str:
-    """The package release used in the headers of generated copies."""
+    """The installed package release."""
     return metadata.version(DISTRIBUTION)
+
+
+def header_version() -> str:
+    """The release line in the copies' headers: MAJOR.MINOR only, so a patch
+    release (fixes to the check, no rule changes) leaves every copy as it is."""
+    major, minor, *_ = package_version().split(".")
+    return f"{major}.{minor}"
 
 
 def is_origin(repo: Path) -> bool:
     """agent-standards itself holds the originals, not copies."""
     return (repo / BASE_FILE).is_file()
+
+
+def unsafe_destinations(repo: Path, names: list[str]) -> list[str]:
+    """Managed paths that go through a symlink, or resolve outside `repo`
+    (which must be resolved). `standards-sync` never writes through them."""
+    unsafe = []
+    for name in names:
+        path = repo
+        for component in Path(name).parts:
+            path = path / component
+            if path.is_symlink():
+                unsafe.append(name)
+                break
+        else:
+            if not path.resolve().is_relative_to(repo):
+                unsafe.append(name)
+    return unsafe
 
 
 def copied_files(root: Path) -> list[str]:
@@ -66,11 +90,11 @@ def read(path: Path) -> str | None:
 
 
 def shared_text(root: Path, name: str) -> str:
-    """Render a shared template with the installed package version."""
+    """Render a shared original with the installed release line."""
     content = read(root / name)
     if content is None:
         raise FileNotFoundError(root / name)
-    return content.replace(VERSION_TOKEN, package_version())
+    return content.replace(VERSION_TOKEN, header_version())
 
 
 def base_block(root: Path) -> str:

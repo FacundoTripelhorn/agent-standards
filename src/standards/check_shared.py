@@ -22,6 +22,7 @@ from standards.shared import (
     read,
     shared_root,
     shared_text,
+    unsafe_destinations,
 )
 
 WORKFLOWS_GLOB = ".github/workflows/*.y*ml"
@@ -65,30 +66,57 @@ def _finding(message: str, path: str, repo: Path) -> Finding:
     )
 
 
-def check_shared_copies(repo: Path, project: Project | None) -> list[Finding]:
-    """Report each copy that is missing or differs from this version."""
-    if project is None or is_origin(repo):
-        return []
-    root = shared_root()
+def _unsafe_finding(name: str) -> Finding:
+    return Finding(
+        Check.SHARED_COPY,
+        f"`{name}` is a symlink or resolves outside the repository.",
+        "Make it a regular file in the repository, then run standards-sync; "
+        "the sync never writes through a symlink.",
+        Rule.CI,
+        name,
+    )
+
+
+def _copy_findings(repo: Path, root: Path, names: list[str]) -> list[Finding]:
     version = package_version()
     findings = []
-    for name in copied_files(root):
+    for name in names:
         copy = read(repo / name)
         if copy is None:
             findings.append(_finding(f"`{name}` is missing.", name, repo))
         elif copy != shared_text(root, name):
             message = f"`{name}` differs from agent-standards {version}."
             findings.append(_finding(message, name, repo))
+    return findings
+
+
+def _block_findings(repo: Path, root: Path) -> list[Finding]:
     try:
         block = current_block(read(repo / AGENTS_FILE) or "")
     except ValueError as error:
         message = f"Invalid `{AGENTS_FILE}` block: {error}."
-        findings.append(_finding(message, AGENTS_FILE, repo))
-    else:
-        if block is None:
-            message = f"`{AGENTS_FILE}` has no shared block."
-            findings.append(_finding(message, AGENTS_FILE, repo))
-        elif block != base_block(root):
-            message = f"The shared block in `{AGENTS_FILE}` differs from {version}."
-            findings.append(_finding(message, AGENTS_FILE, repo))
+        return [_finding(message, AGENTS_FILE, repo)]
+    if block is None:
+        message = f"`{AGENTS_FILE}` has no shared block."
+        return [_finding(message, AGENTS_FILE, repo)]
+    if block != base_block(root):
+        version = package_version()
+        message = f"The shared block in `{AGENTS_FILE}` differs from {version}."
+        return [_finding(message, AGENTS_FILE, repo)]
+    return []
+
+
+def check_shared_copies(repo: Path, project: Project | None) -> list[Finding]:
+    """Report each copy that is missing, differs from this version, or sits
+    behind a symlink the sync would refuse to write through."""
+    if project is None or is_origin(repo):
+        return []
+    repo = repo.resolve()
+    root = shared_root()
+    copies = copied_files(root)
+    unsafe = unsafe_destinations(repo, [*copies, AGENTS_FILE])
+    findings = [_unsafe_finding(name) for name in unsafe]
+    findings += _copy_findings(repo, root, [n for n in copies if n not in unsafe])
+    if AGENTS_FILE not in unsafe:
+        findings += _block_findings(repo, root)
     return findings

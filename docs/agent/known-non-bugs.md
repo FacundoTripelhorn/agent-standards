@@ -35,11 +35,13 @@ list, ask.
 
 ## Rule files say "synced from agent-standards" here too
 
-- **What you see:** files in `docs/agent/rules/` say to edit them in
-  agent-standards, and this is agent-standards.
+- **What you see:** files in `docs/agent/rules/` and `AGENTS.base.md` say to
+  edit them in agent-standards, and this is agent-standards. Their header
+  shows `{agent-standards-version}` instead of a version.
 - **Why it is intended:** the header is written for the copies in other
-  repositories. Here, edit them in place.
-- **Do not:** remove the header.
+  repositories; `standards-sync` replaces the placeholder with the release
+  line when it writes them. Here, edit the files in place.
+- **Do not:** remove the header or write a version over the placeholder.
 
 ## No drift check here, nor without project.yml
 

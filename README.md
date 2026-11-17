@@ -77,15 +77,17 @@ One PR per repository, for its own issue (`<KEY>-<n> Adopt the shared rules`):
    commit, and `standards`, `check`, `test` and `build` as required checks.
 
 The shared copies are real files, because agents only reliably read what is
-in the repository they work on. Version headers are rendered by
-`standards-sync` using its package version; source files keep placeholders.
-The canonical `.github/pull_request_template.md` is owned by sync in every
-repository. Project-specific alternatives use other names under
-`.github/PULL_REQUEST_TEMPLATE/`. Copies are never edited by hand: the
-`standards` job reports drift, and `standards-sync` rewrites them. To move a repository to a new release, update
-the action's pin (Dependabot proposes it) and run `standards-sync` with the
-same commit in that PR. agent-standards itself skips step 3, because it holds
-the originals.
+in the repository they work on. Their headers name the agent-standards
+release line (`MAJOR.MINOR`), rendered by `standards-sync`; the originals
+here keep a placeholder. A patch release only fixes the check, so it leaves
+the copies as they are. The canonical `.github/pull_request_template.md` is
+owned by the sync in every repository; project-specific alternatives use
+other names under `.github/PULL_REQUEST_TEMPLATE/`. Copies are never edited
+by hand: the `standards` job reports drift, and `standards-sync` rewrites
+them. To move a repository to a new release, update the action's pin
+(Dependabot proposes it) and run `standards-sync` with the same commit in
+that PR. agent-standards itself skips step 3, because it holds the
+originals.
 
 ## The shared check
 

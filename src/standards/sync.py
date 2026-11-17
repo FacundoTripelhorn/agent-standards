@@ -21,6 +21,7 @@ from standards.shared import (
     read,
     shared_root,
     shared_text,
+    unsafe_destinations,
     with_block,
 )
 
@@ -44,22 +45,6 @@ def planned_writes(repo: Path) -> dict[str, str]:
     if updated != agents:
         writes[AGENTS_FILE] = updated
     return writes
-
-
-def unsafe_destinations(repo: Path, names: list[str]) -> list[str]:
-    """Reject any symlink or destination outside the resolved repository."""
-    unsafe = []
-    for name in names:
-        path = repo
-        for component in Path(name).parts:
-            path = path / component
-            if path.is_symlink():
-                unsafe.append(name)
-                break
-        else:
-            if not path.resolve().is_relative_to(repo):
-                unsafe.append(name)
-    return unsafe
 
 
 def main(argv: list[str] | None = None) -> int:

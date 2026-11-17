@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import shutil
+from pathlib import Path
 
 import pytest
 
@@ -23,6 +24,7 @@ from standards.sync import main as sync
 
 PROJECT_PART = "# My project\n\nProject rules.\n"
 PIN = "a" * 40
+TEMPLATE = Path(__file__).parents[1] / "templates" / AGENTS_FILE
 
 
 def drift(repo: Repo) -> list[str]:
@@ -48,8 +50,27 @@ def test_sync_renders_version_from_package_metadata(
 ) -> None:
     monkeypatch.setattr("standards.shared.package_version", lambda: "9.9.9")
     assert sync(["--repo", str(repo.root)]) == 0
-    assert "v9.9.9" in (repo.root / AGENTS_FILE).read_text()
-    assert "v9.9.9" in (repo.root / "docs/agent/rules/code.md").read_text()
+    assert "<!-- agent-standards:base v9.9 —" in (repo.root / AGENTS_FILE).read_text()
+    code = (repo.root / "docs/agent/rules/code.md").read_text()
+    assert "<!-- agent-standards v9.9 —" in code
+    assert drift(repo) == []
+
+
+def test_a_patch_release_leaves_the_copies_alone(
+    repo: Repo, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr("standards.shared.package_version", lambda: "9.9.0")
+    sync(["--repo", str(repo.root)])
+    monkeypatch.setattr("standards.shared.package_version", lambda: "9.9.4")
+    assert drift(repo) == []
+    assert sync(["--repo", str(repo.root), "--check"]) == 0
+    monkeypatch.setattr("standards.shared.package_version", lambda: "9.10.0")
+    assert drift(repo) != []
+
+
+def test_a_repository_started_from_the_template_syncs(repo: Repo) -> None:
+    repo.write(AGENTS_FILE, TEMPLATE.read_text())
+    assert sync(["--repo", str(repo.root)]) == 0
     assert drift(repo) == []
 
 
@@ -170,6 +191,14 @@ def test_internal_symlinks_are_rejected_without_writes(repo: Repo, link: str) ->
     path.symlink_to(target)
     assert sync(["--repo", str(repo.root)]) == EXIT_UNSAFE_PATH
     assert (other / "note.md").read_text() == "keep me\n"
+    # The drift check flags what the sync refuses, instead of reading through.
+    project, _ = load_project(repo.root)
+    flagged = [
+        f.path or ""
+        for f in check_shared_copies(repo.root, project)
+        if "symlink" in f.message
+    ]
+    assert flagged and all(path.startswith(link) for path in flagged)
 
 
 def test_pinned_commit_ignores_comments_and_conflicts(repo: Repo) -> None:

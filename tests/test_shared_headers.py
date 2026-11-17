@@ -1,4 +1,4 @@
-"""Shared sources have placeholders rendered with the installed version."""
+"""Shared originals have placeholders rendered with the installed release line."""
 
 from __future__ import annotations
 
@@ -8,7 +8,7 @@ from standards.shared import (
     VERSION_TOKEN,
     base_block,
     copied_files,
-    package_version,
+    header_version,
     shared_root,
     shared_text,
 )
@@ -26,7 +26,7 @@ def test_every_rule_file_has_one_version_placeholder() -> None:
         assert RULE_HEADER in source
         assert source.count(VERSION_TOKEN) == 1
         rendered = shared_text(root, name)
-        assert f"<!-- agent-standards v{package_version()}" in rendered
+        assert f"<!-- agent-standards v{header_version()} " in rendered
         assert VERSION_TOKEN not in rendered
 
 
@@ -35,5 +35,5 @@ def test_base_block_renders_installed_version() -> None:
     assert source.startswith(BASE_HEADER)
     assert source.count(VERSION_TOKEN) == 1
     assert base_block(shared_root()).startswith(
-        f"<!-- agent-standards:base v{package_version()}"
+        f"<!-- agent-standards:base v{header_version()} "
     )

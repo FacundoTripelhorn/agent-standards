@@ -55,8 +55,9 @@ or making a release.
 - Each project's version is written only in the file named by `version_file`
   in `project.yml`; code reads it from that file or package metadata.
   Shared-copy headers (`AGENTS.md` block, `docs/agent/rules/`) identify the
-  agent-standards release separately. Their version is rendered by
-  `standards-sync` from its package metadata, not edited in source files.
+  agent-standards release line (`MAJOR.MINOR`) separately. `standards-sync`
+  renders it from its package metadata; it is never edited by hand. A patch
+  release of agent-standards changes only the check, never the rules.
 - The shared copies change only through `standards-sync`, never by hand.
   Updating a repository to a new agent-standards release is one PR: move the
   action's pin to the new commit, then run
