@@ -6,10 +6,10 @@ when an agent repeats a mistake, not before. Delete these comments. -->
 
 <One or two sentences: what this is, who uses it, the stack.>
 
-## Commands
+## More commands
 
-`just check`, `just fix`, `just test` and `just build` are described in the
-shared rules below. This project also has:
+<!-- Only the recipes beyond check, fix, test and build: the shared rules
+below already describe those four. -->
 
 | Do this | Command |
 |---|---|
@@ -50,4 +50,4 @@ there are none. -->
 |---|---|
 | | |
 
-<!-- agent-standards:base — the shared block is inserted here by the sync. -->
+<!-- standards-sync appends the shared rules block below this line. -->

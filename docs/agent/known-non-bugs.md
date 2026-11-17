@@ -35,11 +35,23 @@ list, ask.
 
 ## Rule files say "synced from agent-standards" here too
 
-- **What you see:** files in `docs/agent/rules/` say to edit them in
-  agent-standards, and this is agent-standards.
+- **What you see:** files in `docs/agent/rules/` and `AGENTS.base.md` say to
+  edit them in agent-standards, and this is agent-standards. Their header
+  shows `{agent-standards-version}` instead of a version.
 - **Why it is intended:** the header is written for the copies in other
-  repositories. Here, edit them in place.
-- **Do not:** remove the header.
+  repositories; `standards-sync` replaces the placeholder with the release
+  line when it writes them. Here, edit the files in place.
+- **Do not:** remove the header or write a version over the placeholder.
+
+## No drift check here, nor without project.yml
+
+- **What you see:** the shared-copy check reports nothing in agent-standards,
+  and nothing in a repository that has no `project.yml` yet.
+- **Why it is intended:** agent-standards holds the originals, not copies. A
+  repository without `project.yml` has not adopted the rules; its
+  `project.yml` finding already says so.
+- **Do not:** compare the originals with themselves, or flood an unadopted
+  repository with one finding per missing copy.
 
 ## Quick triage
 
@@ -48,3 +60,4 @@ list, ask.
 | `project.yml` finding in a repository without one | Not adopted yet | Expected until its adoption PR |
 | Suppression finding on a deliberate `Any` | No reason given | Add `allow-suppression: <why>` on its line |
 | `standards` passes here but fails elsewhere | That repository pins an older SHA | Update the pin in that repository |
+| Shared-copy finding after a Dependabot pin update | The copies are still the old version | Run `standards-sync` with the new commit in that PR |

@@ -9,6 +9,8 @@ from pathlib import Path
 
 import pytest
 
+from standards.sync import main as sync
+
 PROJECT_YML = """\
 key: GHOST
 language: en
@@ -55,6 +57,8 @@ def repo(tmp_path: Path) -> Repo:
     created = Repo(tmp_path / "repo")
     created.write("project.yml", PROJECT_YML)
     created.write("package.json", json.dumps({"version": "1.2.3"}))
+    # An adopted repository: it has the shared copies of this version.
+    sync(["--repo", str(created.root)])
     return created
 
 

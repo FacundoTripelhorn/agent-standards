@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
+from standards.check_shared import check_shared_copies
 from standards.checks_code import check_size, check_suppressions
 from standards.checks_repo import (
     check_pinned_actions,
@@ -26,6 +27,7 @@ def collect(repo: Path, base: str | None) -> tuple[list[Finding], list[str]]:
     findings += check_pinned_actions(context)
     findings += check_size(context)
     findings += check_suppressions(context)
+    findings += check_shared_copies(repo, project)
     return findings, notes
 
 

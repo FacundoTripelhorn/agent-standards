@@ -1,6 +1,6 @@
 # Code rules
 
-<!-- agent-standards v0.8 — synced from agent-standards. Edit it there, not here. -->
+<!-- agent-standards v{agent-standards-version} — synced from agent-standards. Edit it there, not here. -->
 
 Read before writing or changing code.
 

@@ -32,6 +32,7 @@ class Check(StrEnum):
     FUNCTION_SIZE = "Function size"
     SUPPRESSION = "Suppressions"
     PINNED_ACTION = "Pinned actions"
+    SHARED_COPY = "Shared rules copy"
     RELEASE_TAG = "Release tag"
     SIZE_EXCEPTIONS = SIZE_EXCEPTIONS_FILE
 
@@ -44,6 +45,7 @@ class Rule(StrEnum):
     THRESHOLDS = f"{RULES_DIR}/thresholds.md"
     CODE = f"{RULES_DIR}/code.md"
     DEPENDENCIES = f"{RULES_DIR}/dependencies.md"
+    CI = f"{RULES_DIR}/ci.md"
 
 
 class Language(StrEnum):
