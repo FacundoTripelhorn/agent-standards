@@ -42,8 +42,12 @@ GitHub Issues of their repository.
 - PR title and the one commit that lands: `<ID> <issue title>`.
 - Squash merge only; the squash commit uses the PR title, with no body.
 - Every repository runs `just check`, `just fix`, `just test` and `just build`,
-  locally and in CI. Install [just](https://just.systems) once
-  (`winget install Casey.Just`, `brew install just`, or `pip install rust-just`).
+  locally and in CI. Install [just](https://just.systems) once, at the
+  version CI uses (`setup-just/action.yml`):
+  `uv tool install rust-just==1.59.0` on any system,
+  `winget install Casey.Just --version 1.59.0` on Windows, or
+  `cargo install just --version 1.59.0 --locked`. Homebrew cannot install
+  a given version, so on macOS use `uv`.
 - Versions are SemVer, written only in `version_file`; the owner tags
   releases `v<version>`. No changelog file.
 
@@ -112,6 +116,7 @@ for the `check`, `test` and `build` jobs, checked against its sha256 before
 anything is installed, so repositories need no third-party action for it. It
 runs on Linux x64 runners only. To move to a new `just` release, change
 `JUST_VERSION` and `JUST_SHA256` in `setup-just/action.yml` together, taking
-the checksum from that release's `SHA256SUMS` file; repositories get it when
-they update their pin.
+the checksum from that release's `SHA256SUMS` file, and the version in the
+local install commands under "Conventions in one line each" (a test checks
+they match). Repositories get it when they update their pin.
 

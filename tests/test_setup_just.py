@@ -15,10 +15,13 @@ import yaml
 
 ROOT = Path(__file__).parents[1]
 ACTION = ROOT / "setup-just" / "action.yml"
+README = ROOT / "README.md"
 INSTALL = ROOT / "setup-just" / "install.sh"
 FAKE_JUST = b"#!/bin/sh\necho just 0.0.0-test\n"
 SHA256 = re.compile(r"[0-9a-f]{64}")
 VERSION = re.compile(r"\d+\.\d+\.\d+")
+# The local install commands in the README: `rust-just==X.Y.Z`, `--version X.Y.Z`.
+LOCAL_INSTALL_VERSION = re.compile(r"(?:rust-just==|--version )(\d+\.\d+\.\d+)")
 EXIT_FAILED = 1
 LINUX_X64 = {"RUNNER_OS": "Linux", "RUNNER_ARCH": "X64"}
 
@@ -95,3 +98,10 @@ def test_the_action_pins_an_exact_version_and_a_checksum() -> None:
     assert VERSION.fullmatch(step["env"]["JUST_VERSION"])
     assert SHA256.fullmatch(step["env"]["JUST_SHA256"])
     assert "${JUST_VERSION}" in step["run"]
+
+
+def test_the_readme_installs_the_same_version_locally() -> None:
+    [step] = yaml.safe_load(ACTION.read_text())["runs"]["steps"]
+    versions = LOCAL_INSTALL_VERSION.findall(README.read_text())
+    assert len(versions) >= 3
+    assert set(versions) == {step["env"]["JUST_VERSION"]}
