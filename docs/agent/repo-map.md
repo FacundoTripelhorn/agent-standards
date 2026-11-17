@@ -10,6 +10,7 @@ Where things live, by the kind of task. Read this before searching the code.
 | `templates/` | Starting points copied into other repositories |
 | `project.example.yml` | Reference for `project.yml` |
 | `action.yml` | The composite action every repository's `standards` job uses |
+| `setup-just/` | The action that installs `just` in every repository's CI |
 | `src/standards/` | The checks the action runs |
 | `tests/` | pytest suite; `conftest.py` builds throwaway git repositories |
 | `.github/` | This repository's CI and the PR and issue templates (shared) |
@@ -54,4 +55,5 @@ Where things live, by the kind of task. Read this before searching the code.
 | Drift check of the copies | `src/standards/check_shared.py` |
 | Bundling the shared files into the package | `pyproject.toml` (`force-include`) |
 | Secrets (gitleaks) | `action.yml` |
+| Installing `just` in CI (pinned release, sha256) | `setup-just/action.yml`, `setup-just/install.sh` |
 | Tests | `tests/test_<module>.py`; end to end in `tests/test_checks.py` |

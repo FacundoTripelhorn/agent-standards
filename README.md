@@ -42,8 +42,12 @@ GitHub Issues of their repository.
 - PR title and the one commit that lands: `<ID> <issue title>`.
 - Squash merge only; the squash commit uses the PR title, with no body.
 - Every repository runs `just check`, `just fix`, `just test` and `just build`,
-  locally and in CI. Install [just](https://just.systems) once
-  (`winget install Casey.Just`, `brew install just`, or `pip install rust-just`).
+  locally and in CI. Install [just](https://just.systems) once, at the
+  version CI uses (`setup-just/action.yml`):
+  `uv tool install rust-just==1.59.0` on any system,
+  `winget install Casey.Just --version 1.59.0` on Windows, or
+  `cargo install just --version 1.59.0 --locked`. Homebrew cannot install
+  a given version, so on macOS use `uv`.
 - Versions are SemVer, written only in `version_file`; the owner tags
   releases `v<version>`. No changelog file.
 
@@ -64,8 +68,8 @@ One PR per repository, for its own issue (`<KEY>-<n> Adopt the shared rules`):
 4. `docs/agent/repo-map.md`, `verification-matrix.md` and `known-non-bugs.md`
    from `templates/docs/agent/`, filled in for the repository.
 5. A `justfile` from `templates/just/` and CI from
-   `templates/.github/workflows/ci.yml`, with the action pinned to a commit
-   SHA of this repository.
+   `templates/.github/workflows/ci.yml`, with both actions from this
+   repository (the checks and `setup-just`) pinned to the same commit SHA.
 6. `.github/dependabot.yml`, `.gitattributes`, and the issue template. Where
    the repository already has one of these files, add the template's lines
    to it; never replace it (an existing `.gitattributes` may hold
@@ -75,6 +79,9 @@ One PR per repository, for its own issue (`<KEY>-<n> Adopt the shared rules`):
    documents" in `AGENTS.md` or remove them, with the owner's approval.
 8. Settings, done by the owner: squash merge only with the PR title as the
    commit, and `standards`, `check`, `test` and `build` as required checks.
+   If the repository limits which actions may run (Settings → Actions →
+   General), allow `FacundoTripelhorn/agent-standards` and its subpaths
+   (`FacundoTripelhorn/*` covers both), besides the toolchain's own actions.
 
 The shared copies are real files, because agents only reliably read what is
 in the repository they work on. Their headers name the agent-standards
@@ -101,4 +108,15 @@ just run ../GhostMCP origin/main
 
 Working on the check itself: `just check` and `just test` (needs
 [uv](https://docs.astral.sh/uv/)).
+
+## Installing just in CI
+
+`setup-just/` is a second action here. It installs one pinned `just` release
+for the `check`, `test` and `build` jobs, checked against its sha256 before
+anything is installed, so repositories need no third-party action for it. It
+runs on Linux x64 runners only. To move to a new `just` release, change
+`JUST_VERSION` and `JUST_SHA256` in `setup-just/action.yml` together, taking
+the checksum from that release's `SHA256SUMS` file, and the version in the
+local install commands under "Conventions in one line each" (a test checks
+they match). Repositories get it when they update their pin.
 

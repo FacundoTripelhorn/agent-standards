@@ -18,6 +18,7 @@ PR; this page tells you what to run while working and what CI cannot prove.
 | A check | `src/standards/` | `just test`, then `just run <another repo> <base>` on a real repository and read the findings |
 | Size limits | `constants.py`, `thresholds.md` | `uv run pytest tests/test_thresholds_doc.py` |
 | The action | `action.yml` | The `standards` job of this PR runs it with `uses: ./` |
+| Installing `just` | `setup-just/` | `uv run pytest tests/test_setup_just.py`; this PR's `check`, `test` and `build` jobs run it with `uses: ./setup-just` |
 | Rules or templates only | `AGENTS.base.md`, `docs/agent/rules/`, `templates/` | None; check that no rule contradicts another and links resolve |
 
 ## What only the owner can verify

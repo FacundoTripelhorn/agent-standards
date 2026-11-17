@@ -2,6 +2,8 @@
 # local and CI results match and every ruleset requires the same checks.
 # Rules: docs/agent/rules/ci.md. Replace the "Toolchain" steps with the
 # block for this repository's package_manager (below) and delete the rest.
+# Both FacundoTripelhorn/agent-standards pins (the standards job and
+# setup-just) use the same commit; Dependabot updates them together.
 name: CI
 
 on:
@@ -36,7 +38,7 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
-      - uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3  # v4.0.0
+      - uses: FacundoTripelhorn/agent-standards/setup-just@<commit sha>  # v<version>
       # Toolchain
       - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2  # v10.3.3
       - run: just check
@@ -46,7 +48,7 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
-      - uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3  # v4.0.0
+      - uses: FacundoTripelhorn/agent-standards/setup-just@<commit sha>  # v<version>
       # Toolchain
       - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2  # v10.3.3
       - run: just test
@@ -56,7 +58,7 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
-      - uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3  # v4.0.0
+      - uses: FacundoTripelhorn/agent-standards/setup-just@<commit sha>  # v<version>
       # Toolchain
       - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2  # v10.3.3
       - run: just build
