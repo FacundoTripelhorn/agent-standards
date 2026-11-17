@@ -16,8 +16,9 @@ from standards.shared import (
     base_block,
     copied_files,
     shared_root,
+    shared_text,
 )
-from standards.sync import EXIT_UNSAFE_PATH
+from standards.sync import EXIT_INVALID_BLOCK, EXIT_UNSAFE_PATH
 from standards.sync import main as sync
 
 PROJECT_PART = "# My project\n\nProject rules.\n"
@@ -36,9 +37,19 @@ def test_sync_writes_every_copy_and_keeps_the_project_part(repo: Repo) -> None:
     assert sync(["--repo", str(repo.root)]) == 0
     root = shared_root()
     for name in copied_files(root):
-        assert (repo.root / name).read_text() == (root / name).read_text()
+        assert (repo.root / name).read_text() == shared_text(root, name)
     agents = (repo.root / AGENTS_FILE).read_text()
     assert agents == PROJECT_PART + "\n" + base_block(root)
+    assert drift(repo) == []
+
+
+def test_sync_renders_version_from_package_metadata(
+    repo: Repo, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr("standards.shared.package_version", lambda: "9.9.9")
+    assert sync(["--repo", str(repo.root)]) == 0
+    assert "v9.9.9" in (repo.root / AGENTS_FILE).read_text()
+    assert "v9.9.9" in (repo.root / "docs/agent/rules/code.md").read_text()
     assert drift(repo) == []
 
 
@@ -102,6 +113,28 @@ def test_fix_names_the_pinned_commit(repo: Repo) -> None:
     assert f"agent-standards@{PIN} standards-sync" in first.fix
 
 
+@pytest.mark.parametrize(
+    "broken",
+    [
+        "<!-- agent-standards:base v0.1 -->\n",
+        "<!-- /agent-standards:base -->\n",
+        ("<!-- agent-standards:base v0.1 -->\n"
+         "<!-- /agent-standards:base -->\n") * 2,
+    ],
+)
+def test_invalid_blocks_refuse_to_sync_without_writing(
+    repo: Repo, broken: str
+) -> None:
+    repo.write(AGENTS_FILE, PROJECT_PART + broken)
+    path = repo.root / "docs/agent/rules/code.md"
+    path.write_text("edited\n")
+    assert sync(["--repo", str(repo.root)]) == EXIT_INVALID_BLOCK
+    assert path.read_text() == "edited\n"
+    project, _ = load_project(repo.root)
+    findings = check_shared_copies(repo.root, project)
+    assert any("Invalid" in finding.message for finding in findings)
+
+
 @pytest.mark.parametrize("link", [".github/pull_request_template.md", "docs/agent"])
 def test_sync_refuses_a_destination_that_resolves_outside_the_repository(
     repo: Repo, tmp_path_factory: pytest.TempPathFactory, link: str
@@ -121,3 +154,44 @@ def test_sync_refuses_a_destination_that_resolves_outside_the_repository(
     assert victim.read_text() == "keep me\n"
     assert sorted(p.name for p in outside.iterdir()) == ["victim.md"]
     assert not (repo.root / AGENTS_FILE).exists()
+
+
+@pytest.mark.parametrize(
+    "link", [AGENTS_FILE, ".github/pull_request_template.md", "docs/agent"]
+)
+def test_internal_symlinks_are_rejected_without_writes(repo: Repo, link: str) -> None:
+    other = repo.root / "unrelated"
+    other.mkdir()
+    (other / "note.md").write_text("keep me\n")
+    path = repo.root / link
+    if path.is_dir():
+        shutil.rmtree(path)
+        target = other
+    else:
+        path.unlink()
+        target = other / "note.md"
+    path.symlink_to(target)
+    assert sync(["--repo", str(repo.root)]) == EXIT_UNSAFE_PATH
+    assert (other / "note.md").read_text() == "keep me\n"
+
+
+def test_pinned_commit_ignores_comments_and_conflicts(repo: Repo) -> None:
+    repo.write(
+        ".github/workflows/a.yml",
+        f"# - uses: FacundoTripelhorn/agent-standards@{PIN}\n",
+    )
+    assert pinned_commit(repo.root) is None
+    repo.write(
+        ".github/workflows/b.yml",
+        f"  - uses: FacundoTripelhorn/agent-standards@{PIN}\n",
+    )
+    assert pinned_commit(repo.root) == PIN
+    repo.write(
+        ".github/workflows/c.yml",
+        f"  - uses: FacundoTripelhorn/agent-standards@{'b' * 40}\n",
+    )
+    assert pinned_commit(repo.root) is None
+    (repo.root / "docs/agent/rules/code.md").write_text("edited\n")
+    project, _ = load_project(repo.root)
+    [first] = check_shared_copies(repo.root, project)
+    assert "exactly one full-SHA" in first.fix

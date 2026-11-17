@@ -20,6 +20,7 @@ from standards.shared import (
     is_origin,
     read,
     shared_root,
+    shared_text,
     with_block,
 )
 
@@ -27,6 +28,7 @@ _ORIGIN_NOTE = "This is agent-standards: it holds the originals, nothing to sync
 EXIT_OK = 0
 EXIT_CHANGES = 1
 EXIT_UNSAFE_PATH = 2
+EXIT_INVALID_BLOCK = 3
 
 
 def planned_writes(repo: Path) -> dict[str, str]:
@@ -34,7 +36,7 @@ def planned_writes(repo: Path) -> dict[str, str]:
     root = shared_root()
     writes = {}
     for name in copied_files(root):
-        original = read(root / name) or ""
+        original = shared_text(root, name)
         if read(repo / name) != original:
             writes[name] = original
     agents = read(repo / AGENTS_FILE) or ""
@@ -44,10 +46,20 @@ def planned_writes(repo: Path) -> dict[str, str]:
     return writes
 
 
-def outside_repo(repo: Path, names: list[str]) -> list[str]:
-    """Paths that resolve outside the repository, through a symlink in the
-    file itself or in one of its parent folders. `repo` must be resolved."""
-    return [name for name in names if not (repo / name).resolve().is_relative_to(repo)]
+def unsafe_destinations(repo: Path, names: list[str]) -> list[str]:
+    """Reject any symlink or destination outside the resolved repository."""
+    unsafe = []
+    for name in names:
+        path = repo
+        for component in Path(name).parts:
+            path = path / component
+            if path.is_symlink():
+                unsafe.append(name)
+                break
+        else:
+            if not path.resolve().is_relative_to(repo):
+                unsafe.append(name)
+    return unsafe
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -65,12 +77,17 @@ def main(argv: list[str] | None = None) -> int:
     if is_origin(repo):
         print(_ORIGIN_NOTE)
         return EXIT_OK
-    writes = planned_writes(repo)
-    unsafe = outside_repo(repo, list(writes))
+    managed = copied_files(shared_root()) + [AGENTS_FILE]
+    unsafe = unsafe_destinations(repo, managed)
     for name in unsafe:
-        print(f"refusing to write {name}: it resolves outside {repo}", file=sys.stderr)
+        print(f"refusing to sync {name}: unsafe path or symlink", file=sys.stderr)
     if unsafe:
         return EXIT_UNSAFE_PATH
+    try:
+        writes = planned_writes(repo)
+    except ValueError as error:
+        print(f"refusing to sync {AGENTS_FILE}: {error}", file=sys.stderr)
+        return EXIT_INVALID_BLOCK
     for name, text in writes.items():
         if args.check:
             print(f"would update {name}")

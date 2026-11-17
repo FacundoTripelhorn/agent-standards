@@ -6,7 +6,6 @@ the one the workflow pins. Either way `standards-sync` restores it."""
 from __future__ import annotations
 
 import re
-from importlib import metadata
 from pathlib import Path
 
 from standards.constants import Check, Rule
@@ -19,35 +18,48 @@ from standards.shared import (
     copied_files,
     current_block,
     is_origin,
+    package_version,
     read,
     shared_root,
+    shared_text,
 )
 
-DISTRIBUTION = "agent-standards-checks"
 WORKFLOWS_GLOB = ".github/workflows/*.y*ml"
-# `uses: FacundoTripelhorn/agent-standards@<40 hex characters>`
-PINNED_ACTION = re.compile(rf"{re.escape(ACTION_REPOSITORY)}@([0-9a-f]{{40}})")
-UNKNOWN_PIN = "<the commit your workflow pins>"
+# A workflow step's uses declaration, not a comment or arbitrary text.
+PINNED_ACTION = re.compile(
+    rf"""(?:-\s*)?uses:\s*['"]?{re.escape(ACTION_REPOSITORY)}"""
+    r"""@([0-9a-f]{40})['"]?(?:\s+#.*)?"""
+)
 
 
-def pinned_commit(repo: Path) -> str:
-    """The agent-standards commit the repository's workflows pin."""
+def pinned_commit(repo: Path) -> str | None:
+    """The unique action SHA, or None when missing or conflicting."""
+    pins = set()
     for workflow in sorted(repo.glob(WORKFLOWS_GLOB)):
-        match = PINNED_ACTION.search(workflow.read_text(encoding="utf-8"))
-        if match:
-            return match.group(1)
-    return UNKNOWN_PIN
+        for line in workflow.read_text(encoding="utf-8").splitlines():
+            match = PINNED_ACTION.fullmatch(line.strip())
+            if match:
+                pins.add(match.group(1))
+    return next(iter(pins)) if len(pins) == 1 else None
 
 
 def _finding(message: str, path: str, repo: Path) -> Finding:
-    command = (
-        f"uvx --from git+https://github.com/{ACTION_REPOSITORY}@{pinned_commit(repo)}"
-        " standards-sync"
-    )
+    pin = pinned_commit(repo)
+    if pin is None:
+        fix = (
+            "Ensure the workflows have exactly one full-SHA agent-standards "
+            "pin, then run standards-sync with that commit."
+        )
+    else:
+        command = (
+            f"uvx --from git+https://github.com/{ACTION_REPOSITORY}@{pin}"
+            " standards-sync"
+        )
+        fix = f"Run `{command}`. To change a rule, edit agent-standards."
     return Finding(
         Check.SHARED_COPY,
         message,
-        f"Run `{command}`. To change a shared rule, change it in agent-standards.",
+        fix,
         Rule.CI,
         path,
     )
@@ -58,20 +70,25 @@ def check_shared_copies(repo: Path, project: Project | None) -> list[Finding]:
     if project is None or is_origin(repo):
         return []
     root = shared_root()
-    version = metadata.version(DISTRIBUTION)
+    version = package_version()
     findings = []
     for name in copied_files(root):
         copy = read(repo / name)
         if copy is None:
             findings.append(_finding(f"`{name}` is missing.", name, repo))
-        elif copy != read(root / name):
+        elif copy != shared_text(root, name):
             message = f"`{name}` differs from agent-standards {version}."
             findings.append(_finding(message, name, repo))
-    block = current_block(read(repo / AGENTS_FILE) or "")
-    if block is None:
-        message = f"`{AGENTS_FILE}` has no shared block."
+    try:
+        block = current_block(read(repo / AGENTS_FILE) or "")
+    except ValueError as error:
+        message = f"Invalid `{AGENTS_FILE}` block: {error}."
         findings.append(_finding(message, AGENTS_FILE, repo))
-    elif block != base_block(root):
-        message = f"The shared block in `{AGENTS_FILE}` differs from {version}."
-        findings.append(_finding(message, AGENTS_FILE, repo))
+    else:
+        if block is None:
+            message = f"`{AGENTS_FILE}` has no shared block."
+            findings.append(_finding(message, AGENTS_FILE, repo))
+        elif block != base_block(root):
+            message = f"The shared block in `{AGENTS_FILE}` differs from {version}."
+            findings.append(_finding(message, AGENTS_FILE, repo))
     return findings

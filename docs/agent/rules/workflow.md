@@ -1,6 +1,6 @@
 # Workflow
 
-<!-- agent-standards v0.8 — synced from agent-standards. Edit it there, not here. -->
+<!-- agent-standards v{agent-standards-version} — synced from agent-standards. Edit it there, not here. -->
 
 Read before creating a branch, committing, opening a PR, writing in an issue
 or making a release.
@@ -52,12 +52,11 @@ or making a release.
 
 - Versions follow SemVer (`MAJOR.MINOR.PATCH`). While the major version is
   0, a breaking change bumps the minor version.
-- The version is written in one place: the file named by `version_file` in
-  `project.yml`. Nothing else states it; code that needs it reads it from
-  there or from the installed package metadata. The one exception is the
-  header of the shared copies (`AGENTS.md` block, `docs/agent/rules/`): it
-  names the agent-standards version on purpose, so a repository shows which
-  release its copies came from.
+- Each project's version is written only in the file named by `version_file`
+  in `project.yml`; code reads it from that file or package metadata.
+  Shared-copy headers (`AGENTS.md` block, `docs/agent/rules/`) identify the
+  agent-standards release separately. Their version is rendered by
+  `standards-sync` from its package metadata, not edited in source files.
 - The shared copies change only through `standards-sync`, never by hand.
   Updating a repository to a new agent-standards release is one PR: move the
   action's pin to the new commit, then run

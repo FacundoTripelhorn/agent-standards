@@ -3,6 +3,7 @@ originals are: bundled in the installed package, or in the source tree."""
 
 from __future__ import annotations
 
+from importlib import metadata
 from pathlib import Path
 
 from standards.constants import RULES_DIR
@@ -10,6 +11,8 @@ from standards.constants import RULES_DIR
 # Inside the installed package, the originals keep their repository paths
 # under this folder (pyproject.toml, force-include).
 PACKAGED_DIR = "files"
+DISTRIBUTION = "agent-standards-checks"
+VERSION_TOKEN = "{agent-standards-version}"
 BASE_FILE = "AGENTS.base.md"
 AGENTS_FILE = "AGENTS.md"
 PR_TEMPLATE = ".github/pull_request_template.md"
@@ -32,6 +35,11 @@ def shared_root() -> Path:
     if (source / BASE_FILE).is_file():
         return source
     raise FileNotFoundError(f"{BASE_FILE} is neither packaged nor in the source tree")
+
+
+def package_version() -> str:
+    """The package release used in the headers of generated copies."""
+    return metadata.version(DISTRIBUTION)
 
 
 def is_origin(repo: Path) -> bool:
@@ -57,17 +65,31 @@ def read(path: Path) -> str | None:
     return normalized(path.read_text(encoding="utf-8"))
 
 
+def shared_text(root: Path, name: str) -> str:
+    """Render a shared template with the installed package version."""
+    content = read(root / name)
+    if content is None:
+        raise FileNotFoundError(root / name)
+    return content.replace(VERSION_TOKEN, package_version())
+
+
 def base_block(root: Path) -> str:
     """The shared block, markers included, ending with a newline."""
-    text = read(root / BASE_FILE) or ""
+    text = shared_text(root, BASE_FILE)
     return text if text.endswith(LF) else text + LF
 
 
 def _block_span(text: str) -> tuple[int, int] | None:
-    start = text.find(BLOCK_START)
-    end = text.find(BLOCK_END, start if start >= 0 else 0)
-    if start < 0 or end < 0:
+    starts = text.count(BLOCK_START)
+    ends = text.count(BLOCK_END)
+    if starts != ends or starts > 1:
+        raise ValueError("shared block markers are unmatched or duplicated")
+    if not starts:
         return None
+    start = text.find(BLOCK_START)
+    end = text.find(BLOCK_END, start)
+    if end < 0:
+        raise ValueError("the closing marker precedes the opening marker")
     end += len(BLOCK_END)
     if text.startswith(LF, end):
         end += len(LF)

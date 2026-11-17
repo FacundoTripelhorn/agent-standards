@@ -1,6 +1,6 @@
 # CI and the justfile
 
-<!-- agent-standards v0.8 — synced from agent-standards. Edit it there, not here. -->
+<!-- agent-standards v{agent-standards-version} — synced from agent-standards. Edit it there, not here. -->
 
 Read before changing a workflow under `.github/workflows/` or the `justfile`.
 Both changes need the owner's approval first (shared rules, "Ask the owner
