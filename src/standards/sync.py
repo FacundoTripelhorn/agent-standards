@@ -77,7 +77,7 @@ def main(argv: list[str] | None = None) -> int:
     if is_origin(repo):
         print(_ORIGIN_NOTE)
         return EXIT_OK
-    managed = copied_files(shared_root()) + [AGENTS_FILE]
+    managed = [*copied_files(shared_root()), AGENTS_FILE]
     unsafe = unsafe_destinations(repo, managed)
     for name in unsafe:
         print(f"refusing to sync {name}: unsafe path or symlink", file=sys.stderr)
