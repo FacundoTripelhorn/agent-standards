@@ -29,10 +29,10 @@ first").
 Every repository's CI has these jobs, with these names, so every ruleset
 requires the same checks:
 
-| Job | Runs |
-|---|---|
+| Job     | Runs                               |
+| ------- | ---------------------------------- |
 | `check` | Toolchain setup, then `just check` |
-| `test` | Toolchain setup, then `just test` |
+| `test`  | Toolchain setup, then `just test`  |
 | `build` | Toolchain setup, then `just build` |
 
 Each of these jobs installs `just` with

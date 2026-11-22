@@ -53,6 +53,12 @@ shared rules. This project also has:
   They are not synced, so a template change does not touch existing copies.
 - The action installs with `uv run --locked --no-dev`: runtime dependencies
   go in `[project] dependencies`, everything else in the dev group.
+- The shared Markdown files (`AGENTS.base.md`, `docs/agent/rules/`, the PR
+  and issue templates) and the Markdown under `templates/` stay in
+  Prettier's default format, so a repository whose own Prettier checks
+  every file accepts the copies. `just fix` formats them and `just check`
+  fails if one is not formatted; both run a pinned Prettier through `npx`,
+  so they need Node. Other files here are not formatted with Prettier.
 
 ## Other documents
 

@@ -11,6 +11,6 @@ list, ask. Each entry: what you see, why it is on purpose, what not to do.
 
 ## Quick triage
 
-| Observation | Likely cause | Action |
-|---|---|---|
-| <symptom> | <intended behaviour> | Expected; <what to do instead> |
+| Observation | Likely cause         | Action                         |
+| ----------- | -------------------- | ------------------------------ |
+| <symptom>   | <intended behaviour> | Expected; <what to do instead> |

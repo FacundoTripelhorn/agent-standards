@@ -13,15 +13,15 @@ them.
 
 **Every repository has exactly these documents:**
 
-| File | Its one job |
-|---|---|
-| `README.md` | What the project is and how to run it. Short; links to the rest. |
-| `AGENTS.md` | Base rules (synced block) plus this project's own rules. |
-| `docs/agent/repo-map.md` | Where things live: task type → files and directories. |
-| `docs/agent/verification-matrix.md` | Which checks to run for which kind of change, including manual steps only the owner can do. |
-| `docs/agent/known-non-bugs.md` | Behaviour that looks wrong but is intended, so nobody "fixes" it. |
-| `docs/agent/rules/` | Shared rules, synced from agent-standards. Never edited in the repository. |
-| `docs/design.md` | How the system works now, and why (optional). Expands the Architecture section of `AGENTS.md` without repeating its module order or invariants. Headings: Context, Components, Data flow, External systems, Trade-offs that still hold. |
+| File                                | Its one job                                                                                                                                                                                                                             |
+| ----------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `README.md`                         | What the project is and how to run it. Short; links to the rest.                                                                                                                                                                        |
+| `AGENTS.md`                         | Base rules (synced block) plus this project's own rules.                                                                                                                                                                                |
+| `docs/agent/repo-map.md`            | Where things live: task type → files and directories.                                                                                                                                                                                   |
+| `docs/agent/verification-matrix.md` | Which checks to run for which kind of change, including manual steps only the owner can do.                                                                                                                                             |
+| `docs/agent/known-non-bugs.md`      | Behaviour that looks wrong but is intended, so nobody "fixes" it.                                                                                                                                                                       |
+| `docs/agent/rules/`                 | Shared rules, synced from agent-standards. Never edited in the repository.                                                                                                                                                              |
+| `docs/design.md`                    | How the system works now, and why (optional). Expands the Architecture section of `AGENTS.md` without repeating its module order or invariants. Headings: Context, Components, Data flow, External systems, Trade-offs that still hold. |
 
 - **Project-specific documents** that a project genuinely needs (a game's
   design docs, an operator setup guide, license files that must sit next to

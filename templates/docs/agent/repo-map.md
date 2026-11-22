@@ -6,21 +6,21 @@ code works (that belongs in the code or in `docs/design.md`).
 
 ## Layout
 
-| Path | What lives there |
-|---|---|
-| `src/…` | |
-| `tests/…` | |
+| Path      | What lives there |
+| --------- | ---------------- |
+| `src/…`   |                  |
+| `tests/…` |                  |
 
 ## Start here by task type
 
 ### <Area, e.g. API / routes>
 
-| What | Where |
-|---|---|
+| What                 | Where    |
+| -------------------- | -------- |
 | <one responsibility> | `<path>` |
-| Tests | `<path>` |
+| Tests                | `<path>` |
 
 ### <Next area>
 
 | What | Where |
-|---|---|
+| ---- | ----- |
