@@ -37,6 +37,7 @@ packages = ["src/standards"]
 "AGENTS.base.md" = "standards/files/AGENTS.base.md"
 "docs/agent/rules" = "standards/files/docs/agent/rules"
 ".github/pull_request_template.md" = "standards/files/.github/pull_request_template.md"
+".github/ISSUE_TEMPLATE/work-item.md" = "standards/files/.github/ISSUE_TEMPLATE/work-item.md"
 
 [tool.ruff]
 line-length = 88

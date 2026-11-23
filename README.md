@@ -13,7 +13,7 @@ itself (`project.yml`), the issue and PR templates, and the size thresholds.
 | `docs/agent/rules/` | The detail behind each base rule, synced into every repository and read on demand: `code.md`, `security.md`, `workflow.md`, `dependencies.md`, `ci.md`, `docs.md`, `thresholds.md`. |
 | `project.example.yml` | The `project.yml` every repository has at its root. |
 | `.github/pull_request_template.md` | PR template every repository uses. |
-| `.github/ISSUE_TEMPLATE/work-item.md` | Issue template for GitHub-tracked projects (same fields in Linear). |
+| `.github/ISSUE_TEMPLATE/work-item.md` | Issue template synced into GitHub-tracked projects (same fields in Linear). |
 | `templates/docs/agent/` | Starting points for the three agent docs every repository has. |
 | `templates/docs/design.md` | Headings for the optional design document. |
 | `templates/just/` | `justfile` starting points for Python (uv), TypeScript (pnpm/npm) and Unity. |
@@ -59,8 +59,9 @@ One PR per repository, for its own issue (`<KEY>-<n> Adopt the shared rules`):
 2. `AGENTS.md`: the project part from `templates/AGENTS.md`. With Claude
    Code, a `CLAUDE.md` containing `@AGENTS.md`.
 3. The shared copies, written by `standards-sync` from the version the
-   repository pins: the block in `AGENTS.md`, `docs/agent/rules/` and the PR
-   template.
+   repository pins: the block in `AGENTS.md`, `docs/agent/rules/`, the PR
+   template and, unless `project.yml` says `tracker: linear`, the issue
+   template `.github/ISSUE_TEMPLATE/work-item.md`.
 
    ```
    uvx --from git+https://github.com/FacundoTripelhorn/agent-standards@<sha> standards-sync
@@ -70,7 +71,7 @@ One PR per repository, for its own issue (`<KEY>-<n> Adopt the shared rules`):
 5. A `justfile` from `templates/just/` and CI from
    `templates/.github/workflows/ci.yml`, with both actions from this
    repository (the checks and `setup-just`) pinned to the same commit SHA.
-6. `.github/dependabot.yml`, `.gitattributes`, and the issue template. Where
+6. `.github/dependabot.yml` and `.gitattributes`. Where
    the repository already has one of these files, add the template's lines
    to it; never replace it (an existing `.gitattributes` may hold
    rules the build depends on).
@@ -89,7 +90,11 @@ release line (`MAJOR.MINOR`), rendered by `standards-sync`; the originals
 here keep a placeholder. A patch release only fixes the check, so it leaves
 the copies as they are. The canonical `.github/pull_request_template.md` is
 owned by the sync in every repository; project-specific alternatives use
-other names under `.github/PULL_REQUEST_TEMPLATE/`. Copies are never edited
+other names under `.github/PULL_REQUEST_TEMPLATE/`. Likewise the sync owns
+`.github/ISSUE_TEMPLATE/work-item.md` and never touches the repository's
+other issue templates; the first sync overwrites a copy made by hand.
+Repositories with `tracker: linear` don't get it, and a copy they already
+have is left alone and not checked. Copies are never edited
 by hand: the `standards` job reports drift, and `standards-sync` rewrites
 them. To move a repository to a new release, update the action's pin
 (Dependabot proposes it) and run `standards-sync` with the same commit in

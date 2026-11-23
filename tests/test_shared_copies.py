@@ -10,10 +10,11 @@ import pytest
 from conftest import Repo
 from standards.check_shared import check_shared_copies, pinned_commit
 from standards.constants import Check
-from standards.project_config import load_project
+from standards.project_config import Tracker, load_project
 from standards.shared import (
     AGENTS_FILE,
     BLOCK_END,
+    ISSUE_TEMPLATE,
     base_block,
     copied_files,
     shared_root,
@@ -38,7 +39,7 @@ def test_sync_writes_every_copy_and_keeps_the_project_part(repo: Repo) -> None:
     repo.write(AGENTS_FILE, PROJECT_PART)
     assert sync(["--repo", str(repo.root)]) == 0
     root = shared_root()
-    for name in copied_files(root):
+    for name in copied_files(root, Tracker.GITHUB):
         assert (repo.root / name).read_text() == shared_text(root, name)
     agents = (repo.root / AGENTS_FILE).read_text()
     assert agents == PROJECT_PART + "\n" + base_block(root)
@@ -175,7 +176,8 @@ def test_sync_refuses_a_destination_that_resolves_outside_the_repository(
 
 
 @pytest.mark.parametrize(
-    "link", [AGENTS_FILE, ".github/pull_request_template.md", "docs/agent"]
+    "link",
+    [AGENTS_FILE, ".github/pull_request_template.md", ISSUE_TEMPLATE, "docs/agent"],
 )
 def test_internal_symlinks_are_rejected_without_writes(repo: Repo, link: str) -> None:
     other = repo.root / "unrelated"
@@ -221,3 +223,50 @@ def test_pinned_commit_ignores_comments_and_conflicts(repo: Repo) -> None:
     project, _ = load_project(repo.root)
     [first] = check_shared_copies(repo.root, project)
     assert "exactly one full-SHA" in first.fix
+
+
+def test_the_issue_template_is_synced_and_checked_for_drift(repo: Repo) -> None:
+    path = repo.root / ISSUE_TEMPLATE
+    assert path.read_text() == shared_text(shared_root(), ISSUE_TEMPLATE)
+    # A hand-made copy from an older release, as adopted repositories have.
+    path.write_text(
+        path.read_text().replace("**In scope:**\n\n1.", "**In scope:**\n1.")
+    )
+    assert drift(repo) == [ISSUE_TEMPLATE]
+    path.write_text("edited\n")
+    assert drift(repo) == [ISSUE_TEMPLATE]
+    path.unlink()
+    assert drift(repo) == [ISSUE_TEMPLATE]
+    assert sync(["--repo", str(repo.root)]) == 0
+    assert drift(repo) == []
+    assert sync(["--repo", str(repo.root), "--check"]) == 0
+
+
+def test_other_issue_templates_are_left_alone(repo: Repo) -> None:
+    own = ".github/ISSUE_TEMPLATE/implementation.md"
+    repo.write(own, "---\nname: Implementation\n---\nOur own.\n")
+    (repo.root / ISSUE_TEMPLATE).unlink()
+    assert sync(["--repo", str(repo.root)]) == 0
+    assert (repo.root / own).read_text() == "---\nname: Implementation\n---\nOur own.\n"
+    assert drift(repo) == []
+
+
+def test_a_linear_repository_gets_no_issue_template(repo: Repo) -> None:
+    project = (repo.root / "project.yml").read_text()
+    repo.write("project.yml", project.replace("tracker: github", "tracker: linear"))
+    (repo.root / ISSUE_TEMPLATE).unlink()
+    assert sync(["--repo", str(repo.root)]) == 0
+    assert not (repo.root / ISSUE_TEMPLATE).exists()
+    assert drift(repo) == []
+    # A copy it already had is neither checked nor rewritten.
+    repo.write(ISSUE_TEMPLATE, "kept\n")
+    assert sync(["--repo", str(repo.root), "--check"]) == 0
+    assert drift(repo) == []
+    assert (repo.root / ISSUE_TEMPLATE).read_text() == "kept\n"
+
+
+def test_without_project_yml_the_issue_template_is_written(repo: Repo) -> None:
+    (repo.root / "project.yml").unlink()
+    (repo.root / ISSUE_TEMPLATE).unlink()
+    assert sync(["--repo", str(repo.root)]) == 0
+    assert (repo.root / ISSUE_TEMPLATE).is_file()

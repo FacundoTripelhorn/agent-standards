@@ -3,7 +3,8 @@
     uvx --from git+https://github.com/FacundoTripelhorn/agent-standards@<sha> \\
         standards-sync
 
-Writes `docs/agent/rules/*.md` and the PR template, and replaces the shared
+Writes `docs/agent/rules/*.md`, the PR template and (unless project.yml says
+`tracker: linear`) the work-item issue template, and replaces the shared
 block in `AGENTS.md`. With `--check` it only reports what would change.
 """
 
@@ -13,6 +14,7 @@ import argparse
 import sys
 from pathlib import Path
 
+from standards.project_config import Tracker, load_project
 from standards.shared import (
     AGENTS_FILE,
     base_block,
@@ -32,11 +34,18 @@ EXIT_UNSAFE_PATH = 2
 EXIT_INVALID_BLOCK = 3
 
 
-def planned_writes(repo: Path) -> dict[str, str]:
+def repository_tracker(repo: Path) -> Tracker | None:
+    """The tracker in project.yml, or None while it is missing or invalid
+    (the drift check reports that)."""
+    project, _ = load_project(repo)
+    return project.tracker if project else None
+
+
+def planned_writes(repo: Path, copies: list[str]) -> dict[str, str]:
     """The files whose content differs from this version, with their new text."""
     root = shared_root()
     writes = {}
-    for name in copied_files(root):
+    for name in copies:
         original = shared_text(root, name)
         if read(repo / name) != original:
             writes[name] = original
@@ -62,14 +71,14 @@ def main(argv: list[str] | None = None) -> int:
     if is_origin(repo):
         print(_ORIGIN_NOTE)
         return EXIT_OK
-    managed = [*copied_files(shared_root()), AGENTS_FILE]
-    unsafe = unsafe_destinations(repo, managed)
+    copies = copied_files(shared_root(), repository_tracker(repo))
+    unsafe = unsafe_destinations(repo, [*copies, AGENTS_FILE])
     for name in unsafe:
         print(f"refusing to sync {name}: unsafe path or symlink", file=sys.stderr)
     if unsafe:
         return EXIT_UNSAFE_PATH
     try:
-        writes = planned_writes(repo)
+        writes = planned_writes(repo, copies)
     except ValueError as error:
         print(f"refusing to sync {AGENTS_FILE}: {error}", file=sys.stderr)
         return EXIT_INVALID_BLOCK

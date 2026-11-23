@@ -113,7 +113,7 @@ def check_shared_copies(repo: Path, project: Project | None) -> list[Finding]:
         return []
     repo = repo.resolve()
     root = shared_root()
-    copies = copied_files(root)
+    copies = copied_files(root, project.tracker)
     unsafe = unsafe_destinations(repo, [*copies, AGENTS_FILE])
     findings = [_unsafe_finding(name) for name in unsafe]
     findings += _copy_findings(repo, root, [n for n in copies if n not in unsafe])

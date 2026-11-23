@@ -7,6 +7,7 @@ from importlib import metadata
 from pathlib import Path
 
 from standards.constants import RULES_DIR
+from standards.project_config import Tracker
 
 # Inside the installed package, the originals keep their repository paths
 # under this folder (pyproject.toml, force-include).
@@ -16,6 +17,8 @@ VERSION_TOKEN = "{agent-standards-version}"
 BASE_FILE = "AGENTS.base.md"
 AGENTS_FILE = "AGENTS.md"
 PR_TEMPLATE = ".github/pull_request_template.md"
+# Only this template: a repository's other issue templates are its own.
+ISSUE_TEMPLATE = ".github/ISSUE_TEMPLATE/work-item.md"
 MARKDOWN_GLOB = "*.md"
 # The shared block in AGENTS.md starts with a line beginning with
 # BLOCK_START and ends with the BLOCK_END line.
@@ -71,10 +74,15 @@ def unsafe_destinations(repo: Path, names: list[str]) -> list[str]:
     return unsafe
 
 
-def copied_files(root: Path) -> list[str]:
-    """Repository paths of the files copied whole."""
+def copied_files(root: Path, tracker: Tracker | None) -> list[str]:
+    """Repository paths of the files copied whole. The issue template is for
+    GitHub issues, so a repository with `tracker: linear` does not get it;
+    one whose tracker is unknown (no valid project.yml yet) does."""
     rules = sorted((root / RULES_DIR).glob(MARKDOWN_GLOB))
-    return [f"{RULES_DIR}/{path.name}" for path in rules] + [PR_TEMPLATE]
+    templates = [PR_TEMPLATE]
+    if tracker is not Tracker.LINEAR:
+        templates.append(ISSUE_TEMPLATE)
+    return [f"{RULES_DIR}/{path.name}" for path in rules] + templates
 
 
 def normalized(text: str) -> str:

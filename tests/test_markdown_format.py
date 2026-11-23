@@ -58,7 +58,7 @@ def test_check_and_fix_run_the_same_prettier_on_the_shared_markdown() -> None:
 def test_every_shared_file_and_template_is_formatted() -> None:
     patterns = shlex.split(variables()[FILES_VARIABLE])
     covered = {path for pattern in patterns for path in ROOT.glob(pattern)}
-    shared = [ROOT / BASE_FILE] + [ROOT / name for name in copied_files(ROOT)]
+    shared = [ROOT / BASE_FILE] + [ROOT / name for name in copied_files(ROOT, None)]
     issue_templates = ISSUE_TEMPLATE_DIR.glob(MARKDOWN_GLOB)
     templates = TEMPLATES_DIR.rglob(MARKDOWN_GLOB)
     expected = {*shared, *issue_templates, *templates}
