@@ -10,9 +10,9 @@ them. State only what is true now; delete what stops being true. -->
 
 ## Components
 
-| Component | Path | Responsibility |
-|---|---|---|
-| <name> | `<path>` | <one line> |
+| Component | Path     | Responsibility |
+| --------- | -------- | -------------- |
+| <name>    | `<path>` | <one line>     |
 
 ## Data flow
 
@@ -21,8 +21,8 @@ A short numbered list or one diagram.>
 
 ## External systems
 
-| System | Used for | Through | Failure behaviour |
-|---|---|---|---|
+| System               | Used for   | Through    | Failure behaviour              |
+| -------------------- | ---------- | ---------- | ------------------------------ |
 | <API, store, device> | <what for> | `<module>` | <what happens when it is down> |
 
 ## Trade-offs that still hold

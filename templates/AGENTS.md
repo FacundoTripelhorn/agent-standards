@@ -11,8 +11,8 @@ when an agent repeats a mistake, not before. Delete these comments. -->
 <!-- Only the recipes beyond check, fix, test and build: the shared rules
 below already describe those four. -->
 
-| Do this | Command |
-|---|---|
+| Do this     | Command    |
+| ----------- | ---------- |
 | Run the app | `just dev` |
 
 ## Architecture
@@ -47,7 +47,7 @@ with its one job. The owner approves additions. Delete the section if
 there are none. -->
 
 | File | Its one job |
-|---|---|
-| | |
+| ---- | ----------- |
+|      |             |
 
 <!-- standards-sync appends the shared rules block below this line. -->

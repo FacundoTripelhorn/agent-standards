@@ -17,6 +17,13 @@ first").
   cannot run here exits non-zero with the reason.
 - Formatters run in check mode in `just check`. Do not commit unformatted
   code.
+- The shared copies are in Prettier's default format. If the repository
+  runs Prettier with other Markdown options, its config has an override
+  for `AGENTS.md`, `docs/agent/rules/*.md`,
+  `.github/pull_request_template.md` and
+  `.github/ISSUE_TEMPLATE/work-item.md` that sets `tabWidth: 2`,
+  `useTabs: false` and `proseWrap: "preserve"`. Its Prettier then checks
+  the copies without rewriting them. Never exclude the copies from it.
 - Unity is the one exception to "CI calls the recipe": the editor exists in
   CI only as a Docker image, so the `test` job runs the same Edit Mode tests
   through GameCI instead of `just test`.
@@ -29,10 +36,10 @@ first").
 Every repository's CI has these jobs, with these names, so every ruleset
 requires the same checks:
 
-| Job | Runs |
-|---|---|
+| Job     | Runs                               |
+| ------- | ---------------------------------- |
 | `check` | Toolchain setup, then `just check` |
-| `test` | Toolchain setup, then `just test` |
+| `test`  | Toolchain setup, then `just test`  |
 | `build` | Toolchain setup, then `just build` |
 
 Each of these jobs installs `just` with

@@ -11,11 +11,11 @@ repositories, and they grow one PR at a time. Keep new code within the limits
 in `thresholds.md` (same folder). They are the defaults of each language's standard
 linter. In short:
 
-| Language | File | Function |
-|---|---|---|
-| Python | 1000 lines | 50 statements, cyclomatic complexity 10 |
-| TypeScript / JavaScript | 300 lines | 50 lines, cyclomatic complexity 20 |
-| C# | 1000 lines of code | 80 lines of code, cognitive complexity 15 |
+| Language                | File               | Function                                  |
+| ----------------------- | ------------------ | ----------------------------------------- |
+| Python                  | 1000 lines         | 50 statements, cyclomatic complexity 10   |
+| TypeScript / JavaScript | 300 lines          | 50 lines, cyclomatic complexity 20        |
+| C#                      | 1000 lines of code | 80 lines of code, cognitive complexity 15 |
 
 - CI uses a ratchet: existing files over a limit may not grow, and new files
   must fit. You never have to fix old debt to land a change, but you may not

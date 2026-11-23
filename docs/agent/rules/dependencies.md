@@ -13,12 +13,12 @@ one needs the owner's approval first (shared rules, "Ask the owner first").
 - The lockfile is committed and is the only source of installed versions.
   Install from it without changing it:
 
-  | Package manager | Install |
-  |---|---|
-  | uv | `uv sync --locked` |
-  | pnpm | `pnpm install --frozen-lockfile` |
-  | npm | `npm ci` |
-  | unity | `Packages/packages-lock.json`, resolved by the editor |
+  | Package manager | Install                                               |
+  | --------------- | ----------------------------------------------------- |
+  | uv              | `uv sync --locked`                                    |
+  | pnpm            | `pnpm install --frozen-lockfile`                      |
+  | npm             | `npm ci`                                              |
+  | unity           | `Packages/packages-lock.json`, resolved by the editor |
 
 - Never resolve a lockfile merge conflict by hand: take either side, then
   regenerate it (`uv lock`, `pnpm install`, `npm install`).

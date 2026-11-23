@@ -1,4 +1,5 @@
 <!-- agent-standards:base v{agent-standards-version} — synced from agent-standards. Edit it there, not here. -->
+
 ## Shared rules
 
 These rules apply to all of the owner's repositories. The project sections
@@ -14,12 +15,12 @@ version lives.
 Every repository runs its checks with [just](https://just.systems), under
 the same names:
 
-| Command | What it runs |
-|---|---|
+| Command      | What it runs                   |
+| ------------ | ------------------------------ |
 | `just check` | Lint, format check, type check |
-| `just fix` | Formatter and lint autofixes |
-| `just test` | The tests |
-| `just build` | The build |
+| `just fix`   | Formatter and lint autofixes   |
+| `just test`  | The tests                      |
+| `just build` | The build                      |
 
 `just --list` shows the project's other recipes. When a recipe cannot run
 here (for example, there is no Unity editor), it stops with a message that
@@ -34,14 +35,14 @@ says so. Report that check as "not run", never as passed.
   `docs/agent/known-non-bugs.md` to see what is intended.
 - Before some kinds of work, also read the rule file for it:
 
-  | Before you… | Read |
-  |---|---|
-  | write or change code | `docs/agent/rules/code.md` |
-  | handle input, files, secrets or saved data | `docs/agent/rules/security.md` |
-  | create a branch, commit, open a PR or release | `docs/agent/rules/workflow.md` |
-  | add, remove or upgrade a dependency | `docs/agent/rules/dependencies.md` |
-  | change a workflow or a `justfile` | `docs/agent/rules/ci.md` |
-  | add, move or edit a document | `docs/agent/rules/docs.md` |
+  | Before you…                                   | Read                               |
+  | --------------------------------------------- | ---------------------------------- |
+  | write or change code                          | `docs/agent/rules/code.md`         |
+  | handle input, files, secrets or saved data    | `docs/agent/rules/security.md`     |
+  | create a branch, commit, open a PR or release | `docs/agent/rules/workflow.md`     |
+  | add, remove or upgrade a dependency           | `docs/agent/rules/dependencies.md` |
+  | change a workflow or a `justfile`             | `docs/agent/rules/ci.md`           |
+  | add, move or edit a document                  | `docs/agent/rules/docs.md`         |
 
 ### Code
 
@@ -107,4 +108,5 @@ says so. Report that check as "not run", never as passed.
 - Skip, disable or delete a test to make CI pass.
 - Edit this block or `docs/agent/rules/` in this repository. Change them in
   agent-standards.
+
 <!-- /agent-standards:base -->

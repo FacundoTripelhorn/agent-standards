@@ -8,12 +8,15 @@ about: One unit of work for a person or an agent. One issue, one PR.
 **Sequencing:** blocked by / blocks / independent. Size: S, M or L.
 
 **Invariants (do not reinterpret):**
+
 - rules that must still hold after this change (security, data, scope)
 
 **In scope:**
+
 1.
 
 **Out of scope:**
+
 -
 
 **Done when:** the observable result that closes this issue.

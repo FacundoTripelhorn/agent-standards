@@ -2,7 +2,7 @@
 It becomes the one-line commit on the default branch (squash merge).
 Closing line: "Closes #<number>" for a GitHub issue, "Closes KEY-12" for a Linear issue. -->
 
-Closes 
+Closes
 
 ## What and why
 
@@ -14,12 +14,12 @@ Closes
 anything you did not run. For a refactor, say how you know behaviour did
 not change. -->
 
-| Check | Result |
-|---|---|
-| `just check` | |
-| `just test` | |
-| `just build` | |
-| Other (from `verification-matrix.md`) | |
+| Check                                 | Result |
+| ------------------------------------- | ------ |
+| `just check`                          |        |
+| `just test`                           |        |
+| `just build`                          |        |
+| Other (from `verification-matrix.md`) |        |
 
 ## Base rules checklist
 

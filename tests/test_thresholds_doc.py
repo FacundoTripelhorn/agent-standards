@@ -17,8 +17,9 @@ ROWS = {
 
 
 def documented(label: str) -> int:
+    # Prettier pads the columns, so a cell may end in spaces.
     match = re.search(
-        rf"^\| {re.escape(label)} \| (\d+) \|", DOC.read_text(), re.MULTILINE
+        rf"^\| {re.escape(label)} +\| (\d+) +\|", DOC.read_text(), re.MULTILINE
     )
     assert match, f"thresholds.md has no row '{label}'"
     return int(match.group(1))

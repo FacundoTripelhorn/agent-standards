@@ -12,30 +12,30 @@ change; new debt does.
 
 ## Python (ruff, with pylint's rules)
 
-| Limit | Value | Rule | Source |
-|---|---|---|---|
-| Lines per module | 1000 | pylint `C0302 too-many-lines` (`max-module-lines`) | pylint 4.1.3 source, `checkers/format.py` |
-| Statements per function | 50 | ruff `PLR0915` (`lint.pylint.max-statements`) | `ruff config` 0.17.3 |
-| Cyclomatic complexity | 10 | ruff `C901` (`lint.mccabe.max-complexity`) | `ruff config` 0.17.3 |
-| Branches per function | 12 | ruff `PLR0912` (`max-branches`) | `ruff config` 0.17.3 |
-| Arguments per function | 5 | ruff `PLR0913` (`max-args`) | `ruff config` 0.17.3 |
-| Returns per function | 6 | ruff `PLR0911` (`max-returns`) | `ruff config` 0.17.3 |
-| Nested blocks | 5 | ruff `PLR1702` (`max-nested-blocks`) | `ruff config` 0.17.3 |
-| Line length | 88 | ruff `E501` (`line-length`) | `ruff config` 0.17.3 |
+| Limit                   | Value | Rule                                               | Source                                    |
+| ----------------------- | ----- | -------------------------------------------------- | ----------------------------------------- |
+| Lines per module        | 1000  | pylint `C0302 too-many-lines` (`max-module-lines`) | pylint 4.1.3 source, `checkers/format.py` |
+| Statements per function | 50    | ruff `PLR0915` (`lint.pylint.max-statements`)      | `ruff config` 0.17.3                      |
+| Cyclomatic complexity   | 10    | ruff `C901` (`lint.mccabe.max-complexity`)         | `ruff config` 0.17.3                      |
+| Branches per function   | 12    | ruff `PLR0912` (`max-branches`)                    | `ruff config` 0.17.3                      |
+| Arguments per function  | 5     | ruff `PLR0913` (`max-args`)                        | `ruff config` 0.17.3                      |
+| Returns per function    | 6     | ruff `PLR0911` (`max-returns`)                     | `ruff config` 0.17.3                      |
+| Nested blocks           | 5     | ruff `PLR1702` (`max-nested-blocks`)               | `ruff config` 0.17.3                      |
+| Line length             | 88    | ruff `E501` (`line-length`)                        | `ruff config` 0.17.3                      |
 
 Python has no standard "lines per function" limit; statements and complexity
 play that role.
 
 ## TypeScript / JavaScript (ESLint core)
 
-| Limit | Value | Rule | Source |
-|---|---|---|---|
-| Lines per file | 300 | `max-lines` | ESLint 9.39 source, `lib/rules/max-lines.js` |
-| Lines per function | 50 | `max-lines-per-function` | ESLint 9.39 source |
-| Cyclomatic complexity | 20 | `complexity` | ESLint 9.39 source |
-| Nesting depth | 4 | `max-depth` | ESLint 9.39 source |
-| Parameters | 3 | `max-params` | ESLint 9.39 source |
-| Cognitive complexity | 15 | `sonarjs/cognitive-complexity` | eslint-plugin-sonarjs docs; Sonar's default for most languages |
+| Limit                 | Value | Rule                           | Source                                                         |
+| --------------------- | ----- | ------------------------------ | -------------------------------------------------------------- |
+| Lines per file        | 300   | `max-lines`                    | ESLint 9.39 source, `lib/rules/max-lines.js`                   |
+| Lines per function    | 50    | `max-lines-per-function`       | ESLint 9.39 source                                             |
+| Cyclomatic complexity | 20    | `complexity`                   | ESLint 9.39 source                                             |
+| Nesting depth         | 4     | `max-depth`                    | ESLint 9.39 source                                             |
+| Parameters            | 3     | `max-params`                   | ESLint 9.39 source                                             |
+| Cognitive complexity  | 15    | `sonarjs/cognitive-complexity` | eslint-plugin-sonarjs docs; Sonar's default for most languages |
 
 ESLint counts blank lines and comments by default (`skipBlankLines` and
 `skipComments` are `false`). We keep that default so the script and ESLint
@@ -47,12 +47,12 @@ subcomponents; that is the intent, not a false positive.
 
 ## C# (Sonar / .NET analyzers)
 
-| Limit | Value | Rule | Source |
-|---|---|---|---|
-| Lines of code per file | 1000 | Sonar `S104` | Sonar's default "for most languages"; not confirmed on the C# rule page |
-| Lines of code per method | 80 | Sonar `S138` | SonarSource community, C# rule (default 80) |
-| Cognitive complexity | 15 | Sonar `S3776` | Sonar FAQ: 15 for most languages (25 only for C/C++/Objective-C) |
-| Cyclomatic complexity | 25 | .NET `CA1502` | Microsoft Learn, CA1502 (off by default) |
+| Limit                    | Value | Rule          | Source                                                                  |
+| ------------------------ | ----- | ------------- | ----------------------------------------------------------------------- |
+| Lines of code per file   | 1000  | Sonar `S104`  | Sonar's default "for most languages"; not confirmed on the C# rule page |
+| Lines of code per method | 80    | Sonar `S138`  | SonarSource community, C# rule (default 80)                             |
+| Cognitive complexity     | 15    | Sonar `S3776` | Sonar FAQ: 15 for most languages (25 only for C/C++/Objective-C)        |
+| Cyclomatic complexity    | 25    | .NET `CA1502` | Microsoft Learn, CA1502 (off by default)                                |
 
 Sonar counts lines of code only (no blank lines or comments).
 
@@ -63,6 +63,7 @@ ones already flagged in review (`BuildHud`, `LateUpdate`, `StepTalkAndChallenge`
 Raising the limit to 100 would only drop 5 of them; to 120, 12. So 80 stays.
 
 Unity cases that are real:
+
 - Scene builders and layout tables are data more than logic. Move them to
   ScriptableObjects or prefabs, or list them in `size-exceptions.txt` with
   the reason (7 of the 20 long methods in CoastKids are builders).

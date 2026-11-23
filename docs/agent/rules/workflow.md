@@ -15,7 +15,7 @@ or making a release.
     the Linear team key is the project key.
   - `tracker: github`: the project key plus the GitHub issue number of that
     repository (`KEY-12` is that repository's GitHub issue number 12).
-  The examples in these rules use the made-up key `KEY`.
+    The examples in these rules use the made-up key `KEY`.
 - **Branch name:** exactly the issue ID, nothing else: `KEY-12`. If a
   platform requires its own prefix, keep the prefix and put only the ID
   after it: `claude/KEY-12`, `codex/KEY-12`, `cursor/KEY-12`.
