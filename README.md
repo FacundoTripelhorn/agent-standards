@@ -96,6 +96,16 @@ them. To move a repository to a new release, update the action's pin
 that PR. agent-standards itself skips step 3, because it holds the
 originals.
 
+The copies are already in Prettier's default format, so a repository whose
+Prettier checks Markdown with the default settings needs nothing for them.
+If its settings change how Markdown is written (a `tabWidth` other than 2,
+or `proseWrap` set to `always` or `never`), list the copies in its
+`.prettierignore` instead, so its Prettier never rewrites them (the drift
+check would report that): `docs/agent/rules/`,
+`.github/pull_request_template.md`, `.github/ISSUE_TEMPLATE/work-item.md`
+and `AGENTS.md`. The shared block sits inside `AGENTS.md`, so the whole
+file is skipped.
+
 ## The shared check
 
 Each repository's `standards` job runs this repository as an action, pinned
