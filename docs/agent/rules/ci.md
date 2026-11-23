@@ -25,8 +25,19 @@ first").
   `useTabs: false` and `proseWrap: "preserve"`. Its Prettier then checks
   the copies without rewriting them. Never exclude the copies from it.
 - Unity is the one exception to "CI calls the recipe": the editor exists in
-  CI only as a Docker image, so the `test` job runs the same Edit Mode tests
-  through GameCI instead of `just test`.
+  CI only as a Docker image, and GitHub's runners have no editor for
+  `just check` or `just test`. Exactly this changes, and nothing else:
+  - `test` runs the same Edit Mode tests through GameCI
+    (`game-ci/unity-test-runner`) instead of `just test`. That run compiles
+    the project first.
+  - `check` does not compile a second time. It runs after `test`
+    (`needs: test`, `if: always()`) and passes only when `test` succeeded,
+    which proves the project compiled.
+  - `build` keeps its recipe, and `just check` and `just test` stay the
+    local commands.
+
+  agent-standards has both jobs in `templates/.github/workflows/ci.yml`.
+
 - If the repository has an architecture check (import-linter,
   dependency-cruiser, assembly references), `just check` runs it. It is
   optional, so new repositories are not blocked by it.
@@ -77,6 +88,11 @@ jobs, listed in `docs/agent/verification-matrix.md`.
 ## CI is the source of truth
 
 - Every check you are told to run locally also runs in CI.
-- A check that could not run must not look like a pass. A skipped test job
-  fails or shows a visible warning, and a required check proves the tests
-  ran.
+- A check that could not run must not look like a pass. GitHub counts a
+  skipped required job as passing, so a required job is never skipped:
+  - When a secret it needs is missing, its first step fails with a message
+    that names the secret. Never use `if:` on a secret to skip the job.
+    It stays red until the owner adds the secret; there is no opt-out.
+  - A required job that depends on another (`needs:`) runs with
+    `if: always()` and fails unless that job succeeded.
+- A required check proves the tests ran.

@@ -4,7 +4,9 @@
 #   Windows: C:\Program Files\Unity\Hub\Editor\<version>\Editor\Unity.exe
 #   macOS:   /Applications/Unity/Hub/Editor/<version>/Unity.app/Contents/MacOS/Unity
 # Without it they stop with a message: report those checks as "not run".
-# In CI the same EditMode tests run through GameCI. Shared recipes:
+# CI has no editor for these recipes: its `test` job runs the same EditMode
+# tests through GameCI, and its `check` job passes only when that run
+# compiled the project (templates/.github/workflows/ci.yml). Shared recipes:
 # docs/agent/rules/ci.md.
 
 set windows-shell := ["powershell.exe", "-NoLogo", "-NoProfile", "-Command"]
