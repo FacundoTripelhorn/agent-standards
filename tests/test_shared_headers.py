@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
+from standards.constants import RULES_DIR
 from standards.shared import (
     BASE_FILE,
-    PR_TEMPLATE,
     VERSION_TOKEN,
     base_block,
     copied_files,
@@ -19,7 +19,9 @@ BASE_HEADER = f"<!-- agent-standards:base v{VERSION_TOKEN}"
 
 def test_every_rule_file_has_one_version_placeholder() -> None:
     root = shared_root()
-    rules = [name for name in copied_files(root) if name != PR_TEMPLATE]
+    # The PR and issue templates have no header: it would be copied into
+    # every PR and issue body.
+    rules = [name for name in copied_files(root, None) if name.startswith(RULES_DIR)]
     assert rules
     for name in rules:
         source = (root / name).read_text()

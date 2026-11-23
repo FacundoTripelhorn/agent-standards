@@ -80,6 +80,7 @@ class Project:
     key: str
     version_file: str
     release: Release
+    tracker: Tracker
 
 
 def _finding(message: str, line: int | None = None) -> Finding:
@@ -130,5 +131,6 @@ def load_project(repo: Path) -> tuple[Project | None, list[Finding]]:
         key=str(data[Field.KEY.value]),
         version_file=str(data[Field.VERSION_FILE.value]),
         release=Release(data[Field.RELEASE.value]),
+        tracker=Tracker(data[Field.TRACKER.value]),
     )
     return project, []

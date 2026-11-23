@@ -53,6 +53,17 @@ list, ask.
 - **Do not:** compare the originals with themselves, or flood an unadopted
   repository with one finding per missing copy.
 
+## Linear repositories get no issue template
+
+- **What you see:** `standards-sync` writes `.github/ISSUE_TEMPLATE/work-item.md`
+  in a GitHub-tracked repository but not in one with `tracker: linear`, and
+  the drift check ignores a copy a Linear repository already has.
+- **Why it is intended:** Linear repositories do not use GitHub issues, so
+  the copy would only add drift findings. Without a valid `project.yml` the
+  tracker is unknown and the template is written.
+- **Do not:** sync or check it in Linear repositories, or delete their
+  existing copy.
+
 ## Quick triage
 
 | Observation | Likely cause | Action |

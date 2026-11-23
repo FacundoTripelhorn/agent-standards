@@ -52,7 +52,8 @@ the agent-standards action, pinned by SHA, after a checkout with
 `fetch-depth: 0`. It checks `project.yml`, the PR title, file and function
 size, suppressions, pinned actions, release tags, secrets (gitleaks), and
 that the shared copies (`AGENTS.md` block, `docs/agent/rules/`, the PR
-template) match the pinned version: the fix is to run `standards-sync`.
+template and, with GitHub issues, `.github/ISSUE_TEMPLATE/work-item.md`)
+match the pinned version: the fix is to run `standards-sync`.
 Coding practices that need judgement, such as names over literals, are not
 checked by CI; they are reviewed. Findings appear on the lines
 of the PR diff, each with the fix and the rule. It starts in `mode: warn`;
