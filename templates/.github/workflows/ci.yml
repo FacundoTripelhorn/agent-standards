@@ -79,6 +79,56 @@ jobs:
 #     with: { node-version-file: package.json, cache: npm }
 #   - run: npm ci
 #
-# unity: the editor is a Docker image, so `test` runs through GameCI
-# (game-ci/unity-test-runner) instead of `just test`; see ci.md. `check`
-# and `build` keep the recipe.
+# unity: the editor is a Docker image, so `test` runs the Edit Mode tests
+# through GameCI instead of `just test`, and `check` passes only when that
+# run compiled the project, instead of running `just check` (ci.md, "Same
+# commands locally and in CI"). `build` keeps the recipe. Replace the
+# `check` and `test` jobs above with these two.
+#
+# The secrets are those GameCI's activation needs; a Personal license uses
+# UNITY_LICENSE, UNITY_EMAIL and UNITY_PASSWORD. When one is missing, `test`
+# fails and names it; it is never skipped, because GitHub counts a skipped
+# required job as passing (ci.md, "CI is the source of truth"). Dependabot
+# PRs read Dependabot secrets, so the owner adds the same ones there too.
+#
+#   test:
+#     runs-on: ubuntu-latest
+#     timeout-minutes: 30
+#     steps:
+#       - name: Fail when a Unity license secret is missing
+#         env:
+#           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+#           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+#           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+#         run: |
+#           missing=0
+#           for name in UNITY_LICENSE UNITY_EMAIL UNITY_PASSWORD; do
+#             if [ -z "${!name}" ]; then
+#               echo "::error::The $name secret is missing, so the Unity tests cannot run. The owner adds it under Settings > Secrets and variables > Actions (and Dependabot)."
+#               missing=1
+#             fi
+#           done
+#           exit "$missing"
+#       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+#       - uses: game-ci/unity-test-runner@32e57712352b500e17974b245a6dce9e11a73213  # v4.4.0
+#         env:
+#           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+#           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+#           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+#         with:
+#           testMode: editmode
+#
+#   check:
+#     needs: test
+#     if: always()  # never skipped: it fails instead (ci.md)
+#     runs-on: ubuntu-latest
+#     timeout-minutes: 5
+#     steps:
+#       - name: The project compiled in the test job
+#         env:
+#           TEST_RESULT: ${{ needs.test.result }}
+#         run: |
+#           if [ "$TEST_RESULT" != "success" ]; then
+#             echo "::error::check relies on the GameCI compile in the test job, which ended as $TEST_RESULT."
+#             exit 1
+#           fi

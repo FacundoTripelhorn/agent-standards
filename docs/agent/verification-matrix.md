@@ -19,6 +19,7 @@ PR; this page tells you what to run while working and what CI cannot prove.
 | Size limits | `constants.py`, `thresholds.md` | `uv run pytest tests/test_thresholds_doc.py` |
 | The action | `action.yml` | The `standards` job of this PR runs it with `uses: ./` |
 | Installing `just` | `setup-just/` | `uv run pytest tests/test_setup_just.py`; this PR's `check`, `test` and `build` jobs run it with `uses: ./setup-just` |
+| CI template | `templates/.github/workflows/ci.yml` | `uv run pytest tests/test_ci_template.py` (the Unity jobs: pinned actions, missing secrets fail, `check` fails unless `test` succeeded) |
 | Rules or templates only | `AGENTS.base.md`, `docs/agent/rules/`, `templates/` | `just fix`, then `just check` (Prettier on the shared Markdown); check that no rule contradicts another and links resolve |
 
 ## What only the owner can verify
